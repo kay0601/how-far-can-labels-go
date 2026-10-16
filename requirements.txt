@@ -1,0 +1,8 @@
+# analyses (tested with Python 3.13)
+numpy>=1.26
+pandas>=2.3
+pyarrow>=24
+scipy>=1.15
+scikit-learn>=1.9
+matplotlib>=3.10
+huggingface_hub>=1.0

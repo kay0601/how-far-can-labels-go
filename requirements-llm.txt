@@ -1,0 +1,5 @@
+# LLM experiments and HBS+Prior (tested with Python 3.10, CUDA 12.6)
+torch>=2.7
+transformers>=5.2
+bitsandbytes>=0.50
+accelerate>=1.15
