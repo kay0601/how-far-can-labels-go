@@ -49,7 +49,7 @@ Predictive evaluation estimates whether an AI system will solve a benchmark item
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.8\linewidth]{figures/teaser.pdf}
-  \caption{Overview. (a) Recovering each pair's success rate from formative feedback allows all label-only predictors to be scored on the same 69 real pairs. (b) Brier ALC on these pairs. Knowing each benchmark's success rate in advance would remove most of the gap between HBS and the oracle; the LLM benchmark prior of our final submission recovers two fifths of that improvement.}
+  \caption{Overview. (a) Recovering each pair's success rate from formative feedback allows all label-only predictors to be scored on the same 69 real pairs. (b) Brier ALC on these pairs. Knowing each benchmark's success rate in advance ($\alpha = 6$) would remove most of the gap between HBS and the oracle; the LLM benchmark prior of our final submission recovers two fifths of that improvement.}
   \label{fig:teaser}
 \end{figure}
 
@@ -64,7 +64,7 @@ Developing methods for this setting also raises a measurement problem. Formative
 
 We make three contributions (Figure~\ref{fig:teaser}):
 \begin{enumerate}
-  \item \textbf{The bottleneck is the benchmark prior.} More than half of the gap between a strong label-only predictor and an oracle comes from not knowing a new benchmark's difficulty before its labels arrive (Section~\ref{sec:gap}). Item-level difficulty estimates from open LLMs did not transfer to the test benchmarks, but averaged over a benchmark's items, the ratings of the most recent model we tested recover two fifths of the missing prior (Sections~\ref{sec:text} and~\ref{sec:prior}).
+  \item \textbf{The bottleneck is the benchmark prior.} More than half of the gap between a strong label-only predictor and an oracle comes from not knowing a new benchmark's difficulty before its labels arrive (Section~\ref{sec:gap}). Item-level difficulty estimates from open LLMs did not transfer to the test benchmarks, but averaged over a benchmark's items, the ratings of a recent open model recover about two fifths of the missing prior (Sections~\ref{sec:text} and~\ref{sec:prior}).
   \item \textbf{A real-feedback proxy.} When the budget-0 prediction is constant within a pair, the pair's success rate follows from its budget-0 Brier score and expected calibration error (ECE) (Proposition~\ref{prop:identity}). Our eight reports yield 69 pairs on which label-only predictors can be compared on equal terms; the proxy reproduces our submissions' scores within label noise (Section~\ref{sec:proxy}).
   \item \textbf{A strong label-only predictor.} Hierarchical Beta-Binomial shrinkage (HBS) pools labels across subjects and benchmarks and needs no training or pretrained model (Section~\ref{sec:method}). On the proxy it outperforms a Bayes-optimal predictor restricted to each pair's own labels, and no label-only variant we tested improves on it by more than 0.0004 (Section~\ref{sec:labelonly}).
 \end{enumerate}
@@ -73,13 +73,13 @@ Our final submission combines HBS with the LLM benchmark prior (HBS+Prior).\foot
 \section{Related work}
 \label{sec:related}
 
-\paragraph{Efficient and predictive evaluation.} Item response theory (IRT)~\citep{lord1980applications} underlies most work on cheaper evaluation: tinyBenchmarks~\citep{maiapolo2024tinybenchmarks} estimate full-benchmark accuracy from about 100 curated items, ATLAS~\citep{li2025atlas} selects items by Fisher information and needs up to 90\% fewer, and \citet{truong2025reliable} amortize item calibration by predicting difficulty from question content. All require item parameters calibrated on, or predicted from, systems already evaluated on the same benchmark, which benchmark-level cold start lacks; HBS therefore estimates pair-level success rates.
+\paragraph{Efficient and predictive evaluation.} Item response theory (IRT)~\citep{lord1980applications} underlies most work on cheaper evaluation: tinyBenchmarks~\citep{maiapolo2024tinybenchmarks} estimate accuracy from about 100 curated items, ATLAS~\citep{li2025atlas} selects items by Fisher information, and \citet{truong2025reliable} predict item difficulty from content. All need item parameters from systems already evaluated on the same benchmark, which benchmark-level cold start lacks; HBS instead estimates pair-level success rates.
 
-\paragraph{Extending evaluation to new benchmarks.} \citet{habba2026growing} place new benchmarks on an existing multidimensional IRT scale using about 100 anchor items answered by many models, which the one or two subjects per test benchmark cannot provide. Observational scaling laws~\citep{ruan2024observational} and BenchPress~\citep{zeng2026benchpress} predict a model's scores on held-out benchmarks from its scores on others; in our setting, the benchmarks rather than the models are new.
+\paragraph{Extending evaluation to new benchmarks.} \citet{habba2026growing} place new benchmarks on an existing IRT scale using anchor items answered by many models, which one or two subjects per test benchmark cannot provide. Observational scaling laws~\citep{ruan2024observational} and BenchPress~\citep{zeng2026benchpress} predict a model's scores on held-out benchmarks from its other scores; here, the benchmarks rather than the models are new.
 
 \paragraph{Predicting difficulty from content.} \citet{krsteski2026predicting} predict task difficulty across 17 agentic benchmarks from reasoning-trace entropy, embeddings and metadata; their leave-one-benchmark-out Spearman correlation of 0.225 is close to our 0.24 to 0.28 (Section~\ref{sec:text}), and they describe transfer to unseen benchmarks as open. \citet{zhou2025general} annotate 18 demand rubrics per item with GPT-4o and train an assessor for each AI system, reaching an AUROC of 0.747 on held-out benchmarks, but need a proprietary annotator and training data for each system, whereas the test subjects are new. PRECOG~\citep{park2025anticipatory} forecasts task-level performance from task descriptions alone.
 
-\paragraph{Shrinkage and probabilistic forecasts.} HBS is an empirical-Bayes estimator in the tradition of \citet{efron1975data}. We score predictions with the Brier score~\citep{brier1950verification} and report expected calibration error~\citep{guo2017calibration}; the identity behind our proxy is the single-bin case of Murphy's decomposition of the Brier score~\citep{murphy1973new}.
+\paragraph{Shrinkage and probabilistic forecasts.} HBS is an empirical-Bayes estimator in the tradition of \citet{efron1975data}. Predictions are scored with the Brier score~\citep{brier1950verification} and expected calibration error~\citep{guo2017calibration}; our proxy rests on the single-bin case of Murphy's decomposition~\citep{murphy1973new}.
 
 \paragraph{Concurrent work.} Another PAIEC entry~\citep{aghasalim2026shrunk} uses a shrunk logistic predictor and compares versions by regressing each pair's Brier ALC on its budget-0 Brier score over 42 submissions, whereas our proxy compares methods on identical pairs. It also finds that item-text features and sentence embeddings do not transfer to held-out benchmarks.
 
@@ -103,12 +103,12 @@ where $E_{jm} \subseteq E_j$ contains the items whose prediction falls in bin $m
 
 \paragraph{Data.} Benchmarks were assigned at random to disjoint training and test pools before curation. We use the public training pool of measurement-db~\citep{measurementdb}, four benchmarks of which have several subjects per item (Table~\ref{tab:data} in Appendix~\ref{app:repro}). Each formative submission is scored on a draw of at most 1,000 subject--item pairs; the eight draws from which we build the proxy contain 8 or 9 pairs each, mostly with one subject per benchmark, from seven test benchmarks in total. The final ranking uses a common hidden test subset.
 
-\paragraph{Offline simulator.} Methods that use item text, and methods developed before the proxy existed, are evaluated on draws simulated from the four multi-subject training benchmarks. The draws follow the test protocol: about eight pairs per draw, mostly one subject per benchmark, 88 to 230 items per pair split evenly between acquisition and evaluation, and random acquisition. Each configuration is evaluated on 400 draws, and methods that use item text are selected leave-one-benchmark-out (LOBO).
+\paragraph{Offline simulator.} Methods that use item text, and those developed before the proxy, are evaluated on 400 draws simulated from the four multi-subject training benchmarks like test draws: about eight pairs per draw, mostly one subject per benchmark, 88 to 230 items per pair and random acquisition. Methods that use item text are selected leave-one-benchmark-out (LOBO).
 
 \section{Hierarchical Beta-Binomial shrinkage}
 \label{sec:method}
 
-HBS estimates a success rate for each pair by shrinking every level of a three-level hierarchy (global, benchmark, pair) toward the level above it, and then applies two small item-level corrections. Every quantity is computed from $\mathcal{L}_t$ within the call, and no state is kept between calls; apart from its hyperparameters, nothing is fitted to training data.
+HBS estimates a success rate for each pair by shrinking every level of a three-level hierarchy (global, benchmark, pair) toward the level above it, and then applies two small item-level corrections. HBS computes every quantity from $\mathcal{L}_t$ within the call and keeps no state between calls; apart from its hyperparameters, nothing is fitted to training data.
 
 \paragraph{Pair estimate.} For a target pair $(s,b)$, let $k_{sb}$ and $n_{sb}$ be the subject's successes and labels on $b$ in $\mathcal{L}_t$, let $K_{-s,b}$ and $N_{-s,b}$ be those of all other subjects on $b$, and let $K_{-b}$ and $N_{-b}$ be those on all other benchmarks. HBS computes
 \begin{equation}
@@ -119,14 +119,14 @@ HBS estimates a success rate for each pair by shrinking every level of a three-l
 \end{equation}
 Each step is the posterior mean of a Beta-Binomial model whose prior has its mean at the level above and a strength of $\kappa_0$, $\kappa_1$ or $\alpha$ pseudo-labels. The global rate $g_b$ is shrunk strongly toward $\mu_0$ because success rates differ widely across benchmarks, so labels on other benchmarks say little about $b$. The benchmark rate $\pi_{sb}$ excludes the target subject's own labels, which already enter $\bar p_{sb}$ and would otherwise be counted twice. At budget 0, $\mathcal{L}_0$ is empty and HBS predicts $\mu_0$ for every item.
 
-\paragraph{Item and group corrections.} Let $R(i)$ be the labels that other subjects received on the same item $i$, and $G(i)$ the labels, from any subject, on items of the same benchmark that share $i$'s feature group. The feature group is the \texttt{item\_features} string with numeric fields removed, so that it identifies, for example, a contest, website, paper or programming language. For a set $S$ of labels, let $\Delta(S) = \sum_{(s', b', y) \in S} (y - \bar p_{s'b'})$ be the summed residual of each label against its own pair's estimate. The prediction is
+\paragraph{Item and group corrections.} Let $R(i)$ be the labels that other subjects received on the same item $i$, and $G(i)$ the labels, from any subject including $s$, on items of the same benchmark that share $i$'s feature group, given by the non-numeric fields of \texttt{item\_features} (Appendix~\ref{app:repro}), which identify, for example, a contest, website, paper or programming language. For a multiset $S$ of labels $(s', i', y)$, let $\Delta(S) = \sum_{(s', i', y) \in S} (y - \bar p_{s'b(i')})$ be the summed residual of each label against its own pair's estimate. The prediction is
 \begin{equation}
   \hat p_{si} = \operatorname{clip}_{[\epsilon,\, 1-\epsilon]} \Bigl( \bar p_{sb}
     + \gamma_I \, \frac{\Delta(R(i))}{|R(i)| + \kappa_I}
     + \gamma_G \, \frac{\Delta(G(i))}{|G(i)| + \kappa_G} \Bigr).
   \label{eq:corrections}
 \end{equation}
-The item correction is rarely active in test draws, which seldom contain two subjects on the same benchmark; the group correction transfers within-benchmark difficulty structure, such as a hard contest, once its labels arrive.
+The item correction is rarely active in test draws, which seldom contain two subjects on the same benchmark; the group correction transfers within-benchmark difficulty structure, such as a hard contest, once its labels arrive. Because $G(i)$ includes the target pair's own labels, it also weakens the shrinkage of $\bar p_{sb}$ when a benchmark's items share one group; the hyperparameters were tuned with this behavior.
 
 \paragraph{Hyperparameters.} We use $\mu_0 = 0.35$, $\kappa_0 = 100$, $\kappa_1 = \alpha = 3$, $\kappa_I = \gamma_I = 1$, $\kappa_G = 5$, $\gamma_G = 0.75$ and $\epsilon = 0.01$ (Table~\ref{tab:hparams} in Appendix~\ref{app:repro}). They were chosen with the offline simulator (Section~\ref{sec:setup}) and two early feedback reports; re-tuning them on the proxy does not improve the score (Section~\ref{sec:labelonly}). HBS is about 170 lines of standard-library Python.
 
@@ -135,7 +135,7 @@ The item correction is rarely active in test draws, which seldom contain two sub
   \mu_b = \frac{\sum_{i \in I_b} \rho_i + K_0 \, \mu_0}{|I_b| + K_0}, \qquad K_0 = 5,
   \label{eq:prior}
 \end{equation}
-replaces $\mu_0$ in Equation~\eqref{eq:hbs}; all other components are unchanged. Because ratings persist across budgets, $\mu_b$ averages all evaluation items of the benchmark from budget 1 onward and accumulates item by item at budget 0 (implementation in Appendix~\ref{app:repro}).
+replaces $\mu_0$ in the global rate $g_b$ of Equation~\eqref{eq:hbs}; all other components are unchanged, so labels on other benchmarks still dilute $\mu_b$ through $g_b$, mainly at large budgets, where the pair's own labels dominate. Unlike HBS, HBS+Prior keeps state: it caches ratings across calls, budgets and subjects, so $\mu_b$ averages all rated items of the benchmark from budget 1 onward and grows item by item at budget 0, where its predictions therefore vary within a pair (Appendix~\ref{app:repro}).
 
 \section{Evaluating methods with formative feedback}
 \label{sec:proxy}
@@ -157,7 +157,7 @@ To compare methods on the same pairs, we recover the success rate of every pair 
   Because $y_{si}^2 = y_{si}$, $\Brier_j(0) = |E_j|^{-1} \sum_{i \in E_j} (p_j^2 - 2 p_j y_{si} + y_{si}) = p_j^2 - 2 p_j r_j + r_j$, which equals $r_j(1 - r_j) + (p_j - r_j)^2$. All predictions fall into the same bin, so Equation~\eqref{eq:ece} reduces to $|p_j - r_j|$.
 \end{proof}
 
-The condition holds for HBS, and for any predictor whose budget-0 output depends only on the subject and the benchmark, because no labels are available at budget 0. Equation~\eqref{eq:identity} determines $r_j$ up to the reflection $r_j \leftrightarrow 1 - r_j$. When $p_j$ is known, the reflection is resolved by $r_j \in \{p_j - \ECE_j(0),\, p_j + \ECE_j(0)\}$. The prediction is unknown for 43 pairs: 34 from four early submissions whose code we did not retain, and 9 from HBS+Ability, whose budget-0 prediction depends on the subject. For these, we choose the root closer to the success rates of the same benchmark in the reports whose prediction is known; on the 26 pairs with known roots, this rule selects the correct root in 25 cases (Appendix~\ref{app:robust}).
+The condition holds for HBS, and for any predictor whose budget-0 output depends only on the subject and the benchmark, because no labels are available at budget 0. Equation~\eqref{eq:identity} determines $r_j$ up to the reflection $r_j \leftrightarrow 1 - r_j$; when $p_j \neq 1/2$ is known, $\Brier_j(0) = p_j^2 + (1 - 2p_j)\, r_j$ gives $r_j$ directly. The prediction is unknown for 43 pairs: 34 from four early submissions whose code we did not retain, and 9 from HBS+Ability, whose prediction is constant within a pair but depends on subject metadata that the logs anonymize. For these, we choose the root closer to the success rates of the same benchmark in the reports whose prediction is known; on the 26 pairs with known roots, from the reports of the smoothed mean, HBS and HBS+ItemLLM, this rule selects the correct root in 25 cases (Appendix~\ref{app:robust}).
 
 \paragraph{Oracle limit of a draw.} A predictor that knows every $r_j$ and predicts it at every budget scores $\Brier_j(t) = r_j(1 - r_j)$, so by Equation~\eqref{eq:alc} its Brier ALC is
 \begin{equation}
@@ -169,10 +169,10 @@ By Proposition~\ref{prop:identity}, no predictor that is constant within each pa
 
 The proxy scores a label-only predictor $f$ on the 69 recovered pairs. For each report, we draw label sequences $y_{j1}, \dots, y_{j31} \sim \mathrm{Bernoulli}(r_j)$ independently for its pairs, reveal the first $t$ labels of every pair at budget $t$, and query $f$ with item inputs that carry the subject and the benchmark identifier but no content or features. Since the outcomes on $E_j$ average to $r_j$, the Brier score of a prediction $p_j(t)$ is exactly $r_j(1 - r_j) + (p_j(t) - r_j)^2$, and averaging over label sequences gives $f$'s expected Brier ALC on the report. The pairs of a report are simulated jointly, so pooling across pairs behaves as it does on the real draw. Parameters are selected leave-one-report-out, and 95\% intervals are obtained by resampling whole reports.
 
-\paragraph{Validity.} For the three submissions whose code we retained (the smoothed mean, HBS+Ability and HBS; Appendix~\ref{app:versions}), Table~\ref{tab:proxy} compares the real score with the proxy's expectation for the same predictor on the same pairs, and with the spread due to label noise alone, that is, to which outcomes happen to be revealed. Although the proxy is pessimistic by 0.006 to 0.010, because its item inputs disable the item and group corrections, every real score lies within 1.3 standard deviations of its expectation; at the pair level, 24 of the 25 pairs with label noise lie within two standard deviations (Appendix~\ref{app:robust}). We therefore use the proxy as our primary criterion for label-only predictors.
+\paragraph{Validity.} For the three submissions whose code we retained (the smoothed mean, HBS+Ability and HBS; Appendix~\ref{app:versions}), Table~\ref{tab:proxy} compares the real score with the proxy's expectation for the same predictor on the same pairs, and with the spread due to label noise alone, that is, to which outcomes happen to be revealed. Every real score lies below its expectation, by 0.006 to 0.010, but within 1.3 standard deviations; disabling the item and group corrections and ignoring that labels are drawn without replacement from a finite pool each account for about 0.001 of this difference (Appendix~\ref{app:robust}). At the pair level, 24 of the 25 pairs with label noise lie within two standard deviations. We therefore use the proxy as our primary criterion for label-only predictors.
 
 \begin{table}[t]
-  \caption{Real Brier ALC and the proxy's expectation for the same predictor on the same pairs; SD is the spread due to label noise alone. HBS+Ability's rates are inferred (Section~\ref{sec:proxy}).}
+  \caption{Real Brier ALC and the proxy's expectation for the same predictor on the same pairs; SD is the spread due to label noise alone, and differences are computed before rounding. HBS+Ability's rates are inferred (Section~\ref{sec:proxy}).}
   \label{tab:proxy}
   \centering
   \small
@@ -200,12 +200,12 @@ The proof of Proposition~\ref{prop:identity} applies at any budget at which pred
 \subsection{Label-only prediction}
 \label{sec:labelonly}
 
-On the 69 proxy pairs, HBS scores 0.179, compared with 0.207 for the organizers' empirical-mean baseline, 0.250 for a constant prediction of 0.5 and 0.150 for the oracle (Table~\ref{tab:labelonly}). Pooling the labels of other subjects on the same benchmark matters: removing it costs 0.003, as much as replacing HBS with the simpler smoothed mean. A Bayes-optimal predictor that knows the distribution of the 69 success rates but sees only the target pair's labels is worse than HBS by 0.002, although estimating that distribution on the same pairs favours it. Neither a mixture prior with a near-zero component nor re-tuning $\mu_0$, $\alpha$ and $\kappa_1$ on held-out reports improves on HBS, and stratified label acquisition gains only 0.0004 in simulation. These conclusions also hold on the six reports that did not inform the design of HBS and on the 26 pairs whose root is known (Appendix~\ref{app:robust}).
+On the 69 proxy pairs, HBS scores 0.179, compared with 0.207 for the organizers' empirical-mean baseline, 0.250 for a constant prediction of 0.5 and 0.150 for the oracle (Table~\ref{tab:labelonly}). Pooling the labels of other subjects on the same benchmark matters: removing it costs 0.0030, as much as replacing HBS with the simpler smoothed mean (0.0028). A Bayes-optimal predictor that knows the distribution of the other pairs' success rates but sees only the target pair's labels is worse than HBS by 0.0024, although estimating that distribution on the same reports favors it. Neither a mixture prior with a near-zero component nor re-tuning $\mu_0$, $\alpha$ and $\kappa_1$ on held-out reports improves on HBS, and stratified label acquisition gains only 0.0004 in simulation. These conclusions also hold on the six reports that did not inform the design of HBS and on the 26 pairs whose root is known (Appendix~\ref{app:robust}).
 
-\paragraph{Subject-ability adjustment.} Information about the subjects did not help. HBS+Ability shifts the benchmark prior in logit space by a subject-ability score estimated on the training data. It helped in simulation, but on real feedback it raised the budget-0 Brier score to 0.326, worse than a constant prediction of 0.5, and on its own draw it is worse than HBS by 0.026. The training pool contains many older systems, whereas the test subjects are recent systems evaluated on harder benchmarks.
+\paragraph{Subject-ability adjustment.} Information about the subjects did not help. HBS+Ability shifts the benchmark prior in logit space by a subject-ability score estimated on the training data. It helped in simulation, but on real feedback it raised the budget-0 Brier score to 0.326, worse than predicting 0.5, and lost 0.026 to HBS on its own draw. The training pool contains many older systems, whereas the test subjects are recent systems evaluated on harder benchmarks.
 
 \begin{table}[t]
-  \caption{Label-only alternatives to HBS. Positive changes in Brier ALC are worse; intervals are 95\% intervals from resampling whole reports. HBS scores 0.179 on the proxy.}
+  \caption{Label-only alternatives to HBS. Positive changes in Brier ALC are worse; intervals are 95\% intervals from resampling whole reports with the inferred roots held fixed, and the single-draw HBS+Ability row gives the SD of label noise. HBS scores 0.179 on the proxy.}
   \label{tab:labelonly}
   \centering
   \small
@@ -220,7 +220,7 @@ On the 69 proxy pairs, HBS scores 0.179, compared with 0.207 for the organizers'
     Bayes-optimal own-label predictor & reference & $+0.0024$ $[+0.0014, +0.0034]$ \\
     Mixture prior with a near-zero component & leave-one-report-out & $+0.0004$ $[-0.0004, +0.0008]$ \\
     Re-tuned $\mu_0$, $\alpha$, $\kappa_1$ & leave-one-report-out & $+0.0006$ $[-0.0008, +0.0015]$ \\
-    HBS+Ability, on its own draw & fixed & $+0.026$ \\
+    HBS+Ability, on its own draw & fixed & $+0.0265$ (SD 0.0045) \\
     \midrule
     \multicolumn{3}{l}{\emph{Offline simulator, 400 draws}} \\
     Stratified label acquisition & fixed & $-0.0004$ (SE 0.0001) \\
@@ -232,12 +232,12 @@ On the 69 proxy pairs, HBS scores 0.179, compared with 0.207 for the organizers'
 \subsection{Where the remaining error lies}
 \label{sec:gap}
 
-On the 69 pairs, HBS is 0.029 above the oracle. To locate this gap, we gave HBS each benchmark's mean success rate in advance, estimated from the other reports, in place of the global prior mean $\mu_0$ (with $\alpha = 6$). This lowers its score to 0.160 and closes 65\% of the gap (95\% interval 60 to 69\%; 56\% on the 26 pairs with known roots). The loss is concentrated at budgets 0 to 3, where HBS relies on its global prior, and vanishes by budget 31 (Figure~\ref{fig:gap}); the remaining 0.010 reflects differences between subjects on the same benchmark. This diagnostic uses rates recovered from test feedback and could not be part of a submission.
+On the 69 pairs, HBS is 0.029 above the oracle. To locate this gap, we gave HBS each benchmark's mean success rate in advance, estimated from the other reports, in place of $\mu_0$. With the pair-prior strength of HBS ($\alpha = 3$), this lowers its score to 0.162 and closes 58\% of the gap (95\% interval 55 to 61\%); with $\alpha = 6$, which suits an accurate prior, it closes 65\% (60 to 69\%), and on the 26 pairs with known roots, 54\% and 56\%. The loss is concentrated at budgets 0 to 3, where HBS relies on its global prior, and vanishes by budget 31 (Figure~\ref{fig:gap}); the remainder reflects differences between subjects on the same benchmark. This diagnostic uses rates recovered from test feedback and could not be part of a submission.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.5\linewidth]{figures/gap_by_budget.pdf}
-  \caption{Mean Brier score per label budget on the 69 real pairs. Knowing each benchmark's rate removes most of the error of HBS at low budgets; the LLM prior recovers part of it.}
+  \includegraphics[width=0.46\linewidth]{figures/gap_by_budget.pdf}
+  \caption{Mean Brier score per label budget on the 69 real pairs. Knowing each benchmark's rate ($\alpha = 6$) removes most of the error of HBS at low budgets; the LLM prior recovers part of it.}
   \label{fig:gap}
 \end{figure}
 
@@ -248,31 +248,31 @@ Before any labels arrive, item text is the only information available about a ne
 
 \paragraph{Item difficulty within a benchmark.} We prompted Qwen3-8B and Qwen3-32B~\citep{yang2025qwen3} to rate 5,322 training items and fitted a ridge-regression probe on the hidden state of the last prompt token. On the held-out benchmark, the probe ranks items with an average Spearman correlation of 0.24 (8B) and 0.28 (32B), compared with $-0.03$ for bge-small sentence embeddings~\citep{xiao2024cpack}. In the simulator, the probe scores improved Brier ALC by 0.003 and 0.005, respectively.
 
-\paragraph{Benchmark difficulty.} Without examples, both Qwen3 models rated every training benchmark between 6.8 and 7.7 out of 9 on average, although the benchmarks' mean success rates range from 0.22 to 0.62. With nine anchor items from the other benchmarks and their observed success rates in the prompt, only Qwen3.8-27B, the most recent model we tested, produced a benchmark-level prior better than the constant of HBS, unlike Qwen3-8B and Qwen3.5-9B~\citep{qwen35} (budget-0 Brier score 0.217 against 0.233; Table~\ref{tab:bench}). A single rating is noisy, but a predictor can average the ratings of all items it is asked about on a benchmark; four training benchmarks are too few to validate this, so we evaluated it on the test benchmarks (Section~\ref{sec:prior}).
+\paragraph{Benchmark difficulty.} Without examples, both Qwen3 models rated every training benchmark between 6.8 and 7.7 out of 9 on average, although the benchmarks' mean success rates range from 0.22 to 0.62. With nine anchor items from the other benchmarks and their observed success rates in the prompt, only Qwen3.8-27B, the most recent and also the largest of the three models, produced a benchmark-level prior better than the constant of HBS, unlike Qwen3-8B and Qwen3.5-9B~\citep{qwen35} (budget-0 Brier score 0.217 against 0.233; Table~\ref{tab:bench}). A single rating is noisy, but a predictor can average the ratings of all items it is asked about on a benchmark; four training benchmarks are too few to validate this, so we evaluated it on the test benchmarks (Section~\ref{sec:prior}).
 
 \paragraph{Item-level shift on real feedback.}
 \label{sec:itemllm}
-To test the item-level signal on real data, we submitted HBS+ItemLLM, which shifts the HBS estimate in logit space by $\gamma(z_i - c)$, where $z_i$ is the item's standardized Qwen3-32B probe score, $c$ is the mean score of the labeled items of the same benchmark and the target item, and $\gamma = 0.5$. It improved Brier ALC by 0.005 in the simulator, with $\gamma$ selected leave-one-benchmark-out, and ran as intended on the platform, yet it scored 0.157 on its real draw, where the proxy expects 0.131 for HBS: 3.8 standard deviations of label noise worse, mostly at budgets 1 to 7 (Figure~\ref{fig:text}b). With one to three labels, $c$ rests on one or two items, so a single wrong score shifts a whole pair, and four training benchmarks are too few for leave-one-benchmark-out validation to reveal that the scores do not transfer.
+To test the item-level signal on real data, we submitted HBS+ItemLLM, which shifts the HBS estimate in logit space by $\gamma(z_i - c)$, where $z_i$ is the item's standardized Qwen3-32B probe score, $c$ is the mean score of the labeled items of the same benchmark and the target item, and $\gamma = 0.5$. It improved Brier ALC by 0.005 in the simulator, with $\gamma$ selected leave-one-benchmark-out, and ran as intended on the platform, yet it scored 0.157 on its real draw, where the proxy expects 0.131 for HBS: 3.8 standard deviations of label noise worse. The loss is concentrated at budgets 1 to 7 and vanishes by budget 15 (Figure~\ref{fig:text}b), so it stems from centering on one to three labeled items, where $c$ rests on one or two scores and shifts a whole pair. Its size suggests that the scores, standardized with training statistics, spread more widely on the test items, which four training benchmarks could not reveal.
 
 \subsection{A benchmark prior from an LLM}
 \label{sec:prior}
 
-The measurement submission (Section~\ref{sec:measure}) recovered the prior of all seven test benchmarks; for five of them, the prior was closer than the constant 0.35 to the benchmark's mean success rate across our reports. Used from budget 1, the prior improves on HBS by 0.004; used from budget 0, where it accumulates item by item, by 0.007 (95\% interval 0.006 to 0.009; Table~\ref{tab:prior} in Appendix~\ref{app:robust}), two fifths of what knowing each benchmark's rate would gain, mostly at budgets 0 to 3 (Figure~\ref{fig:gap}). On the 26 pairs with known roots, the improvement is 0.008 and holds in each of their three reports; it changes little with $K_0$, the order in which items are rated, or a redraw of each prior within its sampling error (Appendix~\ref{app:robust}). These estimates are in-sample with respect to the test pool: the same seven benchmarks supplied the priors and make up the 69 pairs. On the training benchmarks, whose success rates lie closer to 0.35, the same procedure gained only about 0.002 in simulation: a benchmark prior is most valuable when success rates are extreme, as they are in the test pool.
+The measurement submission (Section~\ref{sec:measure}) recovered the prior of all seven test benchmarks. The priors order the benchmarks' mean success rates across our reports with Kendall's $\tau = 0.62$ and are closer to them than the constant 0.35 for five of the seven, but they are compressed toward the middle (Appendix~\ref{app:robust}). Used from budget 1, the prior improves on HBS by 0.004; used from budget 0, where it accumulates item by item, by 0.007 (95\% interval 0.006 to 0.009; Table~\ref{tab:prior} in Appendix~\ref{app:robust}), mostly at budgets 0 to 3 (Figure~\ref{fig:gap}). This is 44\% of what knowing each benchmark's rate gains at the same $\alpha$, and 39\% with $\alpha = 6$. On the 26 pairs with known roots, the improvement is 0.008 and holds in each of their three reports; removing any one benchmark leaves 0.006 to 0.009 (jackknife standard error over benchmarks 0.003), and it changes little with $K_0$, the order in which items are rated, or a redraw of each prior within its sampling error (Appendix~\ref{app:robust}). These estimates are in-sample with respect to the test pool: the same seven benchmarks supplied the priors and make up the 69 pairs. On the training benchmarks, whose rates lie closer to 0.35, the same procedure gained only about 0.002 in simulation: a benchmark prior pays off when rates are extreme, as in the test pool.
 
 The formative run of the final submission is a check on a fresh draw (Table~\ref{tab:final_run} in Appendix~\ref{app:robust}). At budget 0, which involves no labels and hence no label noise, its Brier score was 0.190, against 0.224 for the HBS constant on the same pairs. Over all budgets it scored 0.174, between the proxy's expectations for HBS (0.180) and HBS+Prior (0.171) and within label noise of both.
 
 \section{Discussion and limitations}
 \label{sec:discussion}
 
-\paragraph{Benchmark-level cold start is limited by information.} How difficult a benchmark is for current systems depends on grading strictness, the harness and environment, and recent progress in model capabilities, none of which is stated in its items. Success rates in the test pool cluster by benchmark, so the first few labels are highly informative, whereas a text-based prior helps only if it reflects current capabilities. Only the most recent LLM we could run helped, and only when its ratings were averaged over a benchmark's items: current LLMs appear to know the approximate difficulty of a kind of task better than that of an individual item.
+\paragraph{Benchmark-level cold start is limited by information.} How difficult a benchmark is for current systems depends on grading strictness, the harness and environment, and recent progress in model capabilities, none of which is stated in its items. Success rates in the test pool cluster by benchmark, so the first few labels are highly informative, whereas a text-based prior helps only if it reflects current capabilities. Only the most recent and largest LLM we rated with anchors helped, and only when its ratings were averaged over a benchmark's items: current LLMs appear to know the approximate difficulty of a kind of task better than that of an individual item.
 
-\paragraph{Simulation can mislead.} Two changes that helped on the public training pool hurt on real feedback, and both relied on statistics learned across that pool: the subject-ability adjustment assumed its older population of systems, and the item-level shift assumed that difficulty signals learned on four benchmarks transfer to new ones. Leave-one-benchmark-out validation on so few benchmarks cannot detect such shifts, so we adopted a change only if it also held on real feedback.
+\paragraph{Simulation can mislead.} Two changes that helped on the public training pool hurt on real feedback, and both relied on statistics learned across that pool: the subject-ability adjustment assumed its older population of systems, and the item-level shift assumed that difficulty signals from four benchmarks transfer. Leave-one-benchmark-out validation on so few benchmarks cannot detect such shifts, so we adopted a change only if it also held on real feedback.
 
-\paragraph{Limitations.} The proxy omits item and group structure, treats labels as independent Bernoulli draws, is pessimistic by 0.006 to 0.010 (Table~\ref{tab:proxy}) and cannot evaluate methods that use item text; with eight reports, its resampling intervals are approximate. For 43 of its 69 pairs, the root is inferred by a rule that is correct on 25 of 26 known pairs; the comparisons with the own-label predictor and with HBS without pooling, and the share due to benchmark difficulty, depend on these roots (Appendix~\ref{app:robust}). The 69 pairs come from seven test benchmarks, and the hidden final test subset may differ. The verdict on the item-level shift rests on one real draw, although five of its nine pairs showed the loss. The LLM prior was measured once, on the seven test benchmarks; its value elsewhere depends on how well the model judges other benchmarks, and without a GPU the final submission falls back to HBS. We tested open models of at most 32 billion parameters; larger models or proprietary APIs may do better.
+\paragraph{Limitations.} The proxy omits item and group structure, treats labels as independent Bernoulli draws, is pessimistic by 0.006 to 0.010 (Table~\ref{tab:proxy}) and cannot evaluate methods that use item text; its intervals resample eight reports and hold the inferred roots and the seven benchmarks fixed. For 43 of its 69 pairs, the root is inferred by a rule that is correct on 25 of 26 known pairs; the comparisons with the own-label predictor and with HBS without pooling, and the share due to benchmark difficulty, depend on these roots (Appendix~\ref{app:robust}). The 69 pairs come from seven test benchmarks, and the hidden final test subset may differ. The verdict on the item-level shift rests on one real draw, although five of its nine pairs showed the loss. The LLM prior was measured once, on the seven test benchmarks; its value elsewhere depends on how well the model judges other benchmarks, and without a GPU the final submission falls back to HBS. We tested open models of at most 32 billion parameters; larger models or proprietary APIs may do better.
 
 \section{Conclusion}
 
-In benchmark-level cold start, the main limitation is missing information about the new benchmark rather than an insufficiently elaborate predictor. Our proxy showed that no label-only alternative we tested improves on hierarchical shrinkage by more than 0.0004 and that more than half of its remaining error comes from not knowing an unseen benchmark's difficulty. Averaging a recent open LLM's ratings over a benchmark's items supplies two fifths of this missing prior, and our final submission uses it; a model that judged benchmark difficulty reliably would be worth up to 0.019 Brier ALC on our pairs.
+In benchmark-level cold start, the main limitation is missing information about the new benchmark rather than an insufficiently elaborate predictor: no label-only alternative we tested improves on hierarchical shrinkage by more than 0.0004, and more than half of its remaining error comes from not knowing an unseen benchmark's difficulty. Averaging a recent open LLM's ratings over a benchmark's items supplies about two fifths of this missing prior, and our final submission uses it; a reliable judge of benchmark difficulty would be worth up to 0.019 Brier ALC on our pairs.
 
 \begin{ack}
 This work was supported in part by the National Science and Technology Council (NSTC), Taiwan, under grants 114-2218-E-035-001 and 114-2119-M-006-007. We thank the National Center for High-performance Computing (NCHC) of the National Applied Research Laboratories (NARLabs) in Taiwan for providing computational and storage resources. The author declares no competing interests.
@@ -299,7 +299,7 @@ Table~\ref{tab:versions} lists the formative submissions referred to in this pap
     Method & Description & Codabench ID \\
     \midrule
     Early submissions & Our first predictors, made before the methods in this paper; code not retained & 928061, 930136, 930165, 931142 \\
-    Smoothed mean & Mean of the pair's labels, smoothed toward a fixed prior of 0.35, with the item correction & 951748 \\
+    Smoothed mean & Pair's label mean shrunk ($\alpha = 5$) toward the benchmark's label mean, itself shrunk toward 0.35 with strength 30; with the item correction & 951748 \\
     HBS+Ability & HBS with a prior mean of 0.4 and a subject-ability shift estimated on the training data & 951853 \\
     HBS & Section~\ref{sec:method}; label-only & 952533 \\
     HBS+ItemLLM & HBS with an item-level shift from Qwen3-32B representations (Section~\ref{sec:itemllm}) & 960385 \\
@@ -319,7 +319,7 @@ Table~\ref{tab:versions} lists the formative submissions referred to in this pap
 \section{Prompts}
 \label{app:prompts}
 
-All prompts were formatted with the model's chat template, with thinking disabled, followed by the prefilled answer prefix ``\texttt{Rating:\textvisiblespace}'', so that the next token is the rating. We read the probabilities of the digit tokens 0 to 9 at that position and renormalize them. The rating is the expected digit $\mathbb{E}[d]$; for the anchored prompt, it is mapped to a success rate $(\mathbb{E}[d] + 0.5)/10$. The item-difficulty probe uses the hidden states of the zero-shot prompt rather than its rating. \texttt{\{content\}} denotes the item text. Long texts were truncated to their beginning and end; for code-completion items, the excerpt is centred on the block to be implemented instead.
+All prompts were formatted with the model's chat template, with thinking disabled, followed by the prefilled answer prefix ``\texttt{Rating:\textvisiblespace}'', so that the next token is the rating. We read the probabilities of the digit tokens 0 to 9 at that position and renormalize them. The rating is the expected digit $\mathbb{E}[d]$; for the anchored prompt, it is mapped to a success rate $(\mathbb{E}[d] + 0.5)/10$. The item-difficulty probe uses the hidden states of the zero-shot prompt rather than its rating. \texttt{\{content\}} denotes the item text. A text longer than its limit keeps its first $h$ tokens followed by a window taken from its end ($h$ = 384 of 2,048 tokens for zero-shot ratings, 64 of 256 for anchors and 192 of 1,024 for targets); if a \texttt{TODO} marker of a code-completion item lies before that window, the window instead ends up to 512 tokens after the marker.
 
 \paragraph{Zero-shot rating (item difficulty).} Item texts were truncated to 2,048 tokens.
 \begin{promptbox}
@@ -332,7 +332,7 @@ Below is a task from an AI evaluation benchmark. A capable AI system (a frontier
 Do not attempt the task yourself. How likely is a strong AI system to solve this task correctly? Answer with a single digit from 0 to 9, where 0 means it almost certainly fails and 9 means it almost certainly succeeds.
 \end{promptbox}
 
-\paragraph{Anchored rating (benchmark difficulty).} The introduction is followed by the examples in a fixed random order and then by the question: nine examples from the other three benchmarks in the experiments of Section~\ref{sec:text}, and twelve from all four benchmarks in HBS+Prior. Anchors were truncated to 256 tokens and targets to 1,024 tokens. Anchors are items with at least five subjects, and targets are 120 randomly chosen items with at least three subjects.
+\paragraph{Anchored rating (benchmark difficulty).} The introduction is followed by the examples in a fixed random order and then by the question: nine examples from the other three benchmarks in the experiments of Section~\ref{sec:text}, and twelve from all four benchmarks in HBS+Prior. The anchors of a benchmark are its items at the 20th, 50th and 80th percentiles of success rate among those with at least five subjects; \texttt{\{pct\}} is the success rate as a rounded percentage and \texttt{\{digit\}} is $\min(9, \lfloor 10 \times \text{rate} \rfloor)$. In Section~\ref{sec:text}, the targets are 120 random items per benchmark with at least three subjects (seed 0); HBS+Prior rates every item it is asked about.
 \begin{promptbox}
 You will estimate how often AI systems succeed on a task from an AI evaluation benchmark. The AI systems are language models, often acting as agents with tools, and each attempt is graded pass/fail.
 
@@ -345,7 +345,7 @@ For reference, here are tasks from other benchmarks with the share of AI systems
 Share of AI systems that solved it: \texttt{\{pct\}}\% (digit \texttt{\{digit\}})\\
 \texttt{</example>}
 
-[\ldots{} eight further examples \ldots]
+[\ldots{} eight further examples (eleven in HBS+Prior) \ldots]
 
 Now a new task, from a different benchmark:
 
@@ -361,7 +361,9 @@ Do not attempt the task yourself. What share of AI systems solve this task? Answ
 
 \paragraph{Code and data.} Code is available at \url{https://github.com/kay0601/how-far-can-labels-go}; its README lists the command that produces each table and figure. The training data are revision bc8204d of measurement-db, obtained with the official preparation script; \bench{matharena}, which that script excludes, is downloaded separately at the same revision. Formative feedback is private to each team and is not released; the proxy scripts read a team's own scoring logs. The official preparation script excludes \bench{matharena} because about 60 of its responses are not binary; we drop those responses and keep the rest. \bench{mmdocrag} is not used because its scores are continuous, and \bench{swe\_rebench}, with one subject per item, is used for training only.
 
-\paragraph{HBS+Prior.} The platform restarts the prediction workers at each budget, so ratings are cached on disk and each item is rated only once. Rating one item takes about 3 seconds on an RTX 3090, well within the platform's limit of 120 seconds per call; the 4-bit model needs about 18 GB of GPU memory and is downloaded by the platform from the model list of the submission. If the model cannot be loaded, the submission falls back to HBS.
+\paragraph{Feature groups.} \texttt{item\_features} is a list of \texttt{key=value} fields separated by semicolons. The group of an item consists of its benchmark and its fields whose value is not a number, except \texttt{prompt\_source}; an item without such fields has no group and no group correction.
+
+\paragraph{HBS+Prior.} The platform restarts the prediction workers at each budget, so ratings are cached on disk and each item is rated only once. Each benchmark's sum and count of ratings are shared by all subjects on it, so at budget 0 the prior used for an item depends on how many items of its benchmark, including other subjects' items, were rated before it. Rating one item takes about 3 seconds on an RTX 3090, well within the platform's limit of 120 seconds per call; the 4-bit model needs about 18 GB of GPU memory and is downloaded by the platform from the model list of the submission. If the model cannot be loaded, the submission falls back to HBS.
 
 \paragraph{LLM experiments.} The ridge probe of Section~\ref{sec:text} uses a regularization strength of $10^4$ and the hidden state at the best of three depths: layer 27 of 36 for Qwen3-8B and the final layer, 64, for Qwen3-32B. Qwen3-32B and Qwen3.8-27B were loaded in 4-bit precision, and Qwen3-8B and Qwen3.5-9B in bfloat16.
 
@@ -419,7 +421,11 @@ Do not attempt the task yourself. What share of AI systems solve this task? Answ
 \section{Robustness of the proxy}
 \label{app:robust}
 
+\paragraph{Subsets.} The 26 pairs with known roots come from the reports of the smoothed mean, HBS and HBS+ItemLLM, which predict 0.35 at budget 0. The 26 pairs of Table~\ref{tab:proxy} and Figure~\ref{fig:pairs} come from the reports of the three submissions whose code we retained, the smoothed mean, HBS+Ability and HBS; for HBS+Ability, the proxy uses the inferred budget-0 predictions, through an ability table that reproduces them.
+
 \paragraph{Pair-level validity.} Figure~\ref{fig:pairs} compares each pair's real Brier ALC with the proxy's expectation for the three submissions of Table~\ref{tab:proxy}, as a $z$-score under label noise alone. Of the 25 pairs with label noise, 24 lie within two standard deviations, and the mean $z$ of $-0.35$ reflects the proxy's pessimism. The exception ($z = 3.6$, on the draw of HBS) is a pair whose real Brier score rose from 0.27 at budget 0 to 0.34 at budgets 3 to 15. This is consistent with an acquisition half whose success rate differs from that of the evaluation half, which the proxy does not model because it draws labels from the evaluation rate. The one pair without label noise matches its expectation to within $10^{-6}$.
+
+\paragraph{Pessimism of the proxy.} Drawing each pair's labels without replacement from a pool of $|E_j|$ items with the pair's success rate, instead of independently, lowers the proxy's expectation by 0.0008 to 0.0009 for the three submissions of Table~\ref{tab:proxy}, and the item and group corrections, which the proxy disables, are worth about 0.001 in the simulator (Table~\ref{tab:labelonly}). These two effects explain about 0.002 of the 0.006 to 0.010 by which the real scores fall below the proxy. The rest is within label noise, although its consistent sign suggests a further difference between real and simulated label sequences, such as acquisition halves whose rates differ from those of the evaluation halves.
 
 \begin{figure}[ht]
   \centering
@@ -430,7 +436,9 @@ Do not attempt the task yourself. What share of AI systems solve this task? Answ
 
 \paragraph{Reports that did not inform the design.} Because the reports of the smoothed mean and HBS+Ability informed the design of HBS, we repeated the comparisons of Table~\ref{tab:labelonly} with the official baseline, the smoothed mean, the ablation and the own-label predictor on the other six reports: every difference keeps its sign and changes by at most 0.001.
 
-\paragraph{Choice of roots.} For the 43 pairs whose budget-0 prediction is unknown, from the four early reports and the report of HBS+Ability, we chose between $r_j$ and $1 - r_j$ using the rates of the same benchmark in the reports whose prediction is known. Applied to the 26 pairs whose root is known, with references from the other known reports, this rule picks the correct root for 25 and lands within 0.1 of it for all 26; the miss is a pair near 0.5, where the two roots nearly coincide. Table~\ref{tab:roots} repeats the main comparisons of Table~\ref{tab:labelonly} on the 26 known pairs alone, with all 43 inferred roots flipped, and with each inferred root flipped at random with probability 0.20, the upper end of the 95\% interval for the rule's error rate (40 assignments, 300 label sequences each). The advantages of HBS over the official baseline and the smoothed mean hold in every case. The advantage over HBS without benchmark pooling holds on the known pairs and with all roots flipped, but reverses in some random assignments. The comparison with the own-label predictor and the share of the gap due to benchmark difficulty hold on the known pairs, where the share is 56\%, but depend on the inferred roots: both reverse when all 43 roots are flipped, which would contradict the rates of the same benchmarks in other reports, and both become uncertain under random flips.
+\paragraph{Choice of roots.} For the 43 pairs whose budget-0 prediction is unknown, from the four early reports and the report of HBS+Ability, we chose between $r_j$ and $1 - r_j$ using the rates of the same benchmark in the reports whose prediction is known. Applied to the 26 pairs whose root is known, with references from the other known reports, this rule picks the correct root for 25 and lands within 0.1 of it for all 26; the miss is a pair near 0.5, where the two roots nearly coincide. Table~\ref{tab:roots} repeats the main comparisons of Table~\ref{tab:labelonly} on the 26 known pairs alone, with all 43 inferred roots flipped, and with each inferred root flipped at random with probability 0.20, the upper end of the 95\% interval for the rule's error rate (40 assignments, 300 label sequences each). The advantages of HBS over the official baseline and the smoothed mean hold in every case. The advantage over HBS without benchmark pooling holds on the known pairs and with all roots flipped, but reverses in some random assignments. The comparison with the own-label predictor and the share of the gap due to benchmark difficulty hold on the known pairs, where the share is 56\%, but depend on the inferred roots: both reverse when all 43 roots are flipped, which would contradict the rates of the same benchmarks in other reports, and both become uncertain under random flips. The intervals of Tables~\ref{tab:labelonly} and~\ref{tab:prior} hold the inferred roots fixed. Independent random flips are a deliberately pessimistic test: they break the clustering of rates by benchmark that the rule relies on, whereas the rule's error is most likely for rates near 0.5, where a flip changes little.
+
+\paragraph{Benchmark-difficulty diagnostic.} The diagnostic replaces $\mu_0$ by the benchmark's mean rate in the other reports. With $\alpha = 3$, it scores 0.162 and closes 58\% of the gap between HBS and the oracle (95\% interval 55 to 61\%); fixing $g_b$ at that mean instead ($\kappa_0 \to \infty$) closes 59\%. With $\alpha = 6$, used in Figures~\ref{fig:teaser} and~\ref{fig:gap}, it closes 65\%. On the 26 known pairs, the shares are 54\% and 56\%.
 
 \begin{table}[ht]
   \caption{Change in Brier ALC of each alternative relative to HBS, and the share of HBS's gap to the oracle closed by knowing each benchmark's rate, under different choices of the 43 inferred roots.}
@@ -450,7 +458,9 @@ Do not attempt the task yourself. What share of AI systems solve this task? Answ
   \end{tabular}
 \end{table}
 
-\paragraph{HBS+Prior.} Table~\ref{tab:prior} gives the effect of the LLM prior on the 69 pairs. The prior lowers the expected Brier ALC on five of the seven benchmarks and on 51 of the 69 pairs. Table~\ref{tab:prior_robust} collects the checks of Section~\ref{sec:prior}. The priors were redrawn 20 times from their sampling distribution (the mean of $n$ ratings with standard deviation 0.205, where $n$ is the number of items rated in the measurement run); the order of the items was permuted 200 times for fixed ratings; and $K_0$, set to 5 before the measurement, was varied from 0 to 20. In the formative run of the final submission, predictions at budgets 1 and 3 are constant within five of the nine pairs and nearly constant within the other four, where only the corrections of Equation~\eqref{eq:corrections} vary, so both budgets approximately identify each pair's rate: their estimates of $r_j(1 - r_j)$ agree exactly for the five pairs and to within 0.004 for the others. Table~\ref{tab:final_run} compares that run with the proxy's expectations on its pairs.
+\paragraph{HBS+Prior.} Table~\ref{tab:prior} gives the effect of the LLM prior on the 69 pairs. From budget 1 onward, the proxy uses the measured priors. At budget 0, it models the prior for the $k$-th evaluation item of a pair as the $K_0$-shrunk mean of $k$ ratings drawn around the benchmark's mean rating with the standard deviation of single ratings on the training benchmarks, 0.205; the mean rating is recovered by undoing the shrinkage of $\mu_b$ over the $n_b$ items rated in the measurement run, and $|E_j|$ is read from each report. In the measurement run, the budget-1 error $e = |\mu_b - r_j|$ leaves the candidates $r_j \pm e$, whose budget-3 predictions have errors $|0.1 - e|$ and $0.1 + e$; these differ whenever $e > 0$, and no prior exceeded 0.89, so $\mu_b + 0.1$ was never clipped.
+
+\paragraph{Accuracy of the priors.} Across the seven test benchmarks, the priors order the benchmarks' mean success rates with Kendall's $\tau = 0.62$ and lower the mean absolute error from 0.22 for the constant 0.35 to 0.15, but they are compressed: regressing the priors on the mean rates gives a slope of 0.38. The prior lowers the expected Brier ALC on five of the seven benchmarks and on 51 of the 69 pairs; removing any one benchmark leaves an improvement of 0.0057 to 0.0088, and the jackknife standard error over benchmarks, 0.0033, is larger than the interval of Table~\ref{tab:prior} suggests. Table~\ref{tab:prior_robust} collects the checks of Section~\ref{sec:prior}. The priors were redrawn 20 times from their sampling distribution (the mean of $n$ ratings with standard deviation 0.205, where $n$ is the number of items rated in the measurement run); the order of the items was permuted 200 times for fixed ratings; and $K_0$, set to 5 before the measurement, was varied from 0 to 20. In the formative run of the final submission, predictions at budgets 1 and 3 are constant within five of the nine pairs and nearly constant within the other four, where only the corrections of Equation~\eqref{eq:corrections} vary, so both budgets approximately identify each pair's rate: their estimates of $r_j(1 - r_j)$ agree exactly for the five pairs and to within 0.004 for the others. Table~\ref{tab:final_run} compares that run with the proxy's expectations on its pairs.
 
 \begin{table}[ht]
   \caption{HBS with the LLM benchmark prior on the 69 real pairs. The priors are fixed at the values measured in Section~\ref{sec:measure}, so the 95\% intervals, from resampling whole reports, cover label noise and the sampling of pairs, but neither the sampling error of the priors (Table~\ref{tab:prior_robust}) nor benchmarks outside the test pool.}
@@ -464,7 +474,8 @@ Do not attempt the task yourself. What share of AI systems solve this task? Answ
     HBS & 0.179 & --- \\
     HBS+Prior, prior used from budget 1 & 0.175 & $-0.0044$ $[-0.0052, -0.0035]$ \\
     HBS+Prior, prior used from budget 0 (final submission) & 0.171 & $-0.0073$ $[-0.0087, -0.0059]$ \\
-    HBS with each benchmark's rate known (diagnostic) & 0.160 & $-0.0186$ $[-0.0204, -0.0171]$ \\
+    Each benchmark's rate known, $\alpha = 3$ (diagnostic) & 0.162 & $-0.0166$ $[-0.0185, -0.0149]$ \\
+    Each benchmark's rate known, $\alpha = 6$ (diagnostic) & 0.160 & $-0.0186$ $[-0.0204, -0.0171]$ \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -503,11 +514,13 @@ Do not attempt the task yourself. What share of AI systems solve this task? Answ
   \end{tabular}
 \end{table}
 
+\paragraph{Baselines and tuning grids.} The official baseline predicts the mean of the pair's revealed labels, and 0.5 without labels. The own-label Bayes predictor takes as its prior the empirical distribution of the success rates of all other pairs and predicts the posterior mean given the pair's own labels. The mixture prior adds to the pair prior of HBS, with weight $w$, a near-unsolvable component, a Beta distribution with mean $m$ and strength $k$; we search $w \in \{0, 0.1, \dots, 0.4\}$, $m \in \{0.02, 0.05, 0.1\}$ and $k \in \{5, 10, 30\}$. Re-tuning searches $\mu_0 \in \{0.3, 0.35, 0.4\}$, $\alpha \in \{2, 3, 4, 6\}$ and $\kappa_1 \in \{1, 3, 6\}$. Both select leave-one-report-out.
+
 \FloatBarrier
 \section{LLM ratings on the training benchmarks}
 \label{app:llm}
 
-Table~\ref{tab:bench} and Figure~\ref{fig:text}a give the anchored benchmark-level ratings of Section~\ref{sec:text} on the four held-out training benchmarks, and Figure~\ref{fig:text}b compares HBS+ItemLLM with the proxy at each budget.
+Tables~\ref{tab:bench} and~\ref{tab:bench_means} and Figure~\ref{fig:text}a give the anchored benchmark-level ratings of Section~\ref{sec:text} on the four held-out training benchmarks, and Figure~\ref{fig:text}b compares HBS+ItemLLM with the proxy at each budget.
 
 \begin{table}[ht]
   \caption{Budget-0 priors from anchored LLM ratings on the four held-out training benchmarks. Kendall's $\tau$ compares predicted and actual orderings; single-item rows shrink each item's own rating toward 0.35.}
@@ -525,6 +538,23 @@ Table~\ref{tab:bench} and Figure~\ref{fig:text}a give the anchored benchmark-lev
     Qwen3.8-27B, single item, shrinkage chosen in hindsight & --- & 0.220 \\
     Qwen3.8-27B, single item, shrinkage chosen LOBO & --- & 0.231 \\
     Oracle that knows each benchmark's rate & 1.00 & 0.199 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+  \caption{Mean predicted success rate of each held-out training benchmark from anchored ratings, against its actual mean rate on the rated items.}
+  \label{tab:bench_means}
+  \centering
+  \small
+  \begin{tabular}{lrrrr}
+    \toprule
+    & \bench{multi\_swebench} & \bench{researchcodebench} & \bench{real\_webagents} & \bench{matharena} \\
+    \midrule
+    Actual & 0.125 & 0.341 & 0.366 & 0.645 \\
+    Qwen3-8B & 0.206 & 0.108 & 0.378 & 0.340 \\
+    Qwen3.5-9B & 0.535 & 0.532 & 0.459 & 0.514 \\
+    Qwen3.8-27B & 0.202 & 0.359 & 0.407 & 0.394 \\
     \bottomrule
   \end{tabular}
 \end{table}

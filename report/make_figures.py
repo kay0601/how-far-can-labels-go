@@ -73,7 +73,7 @@ def teaser():
     ax = fig.add_axes([0.735, 0.30, 0.245, 0.58])
     bars = [("Constant 0.5", 0.25, LIGHT), ("HBS", gap["v5"], ACCENT),
             ("HBS+Prior\n(final submission)", gap["HBS+Prior"], PRIOR),
-            ("HBS, benchmark\nrate known", gap["benchmark known"], GREY),
+            ("HBS, benchmark\nrate known (α = 6)", gap["benchmark known"], GREY),
             ("Oracle\n(pair rate known)", gap["oracle"], GREY)]
     ys = list(range(len(bars)))[::-1]
     for yv, (name, val, color) in zip(ys, bars):
@@ -85,10 +85,6 @@ def teaser():
     ax.set_xlabel("Brier ALC on 69 real pairs", fontsize=7.6)
     ax.tick_params(axis="both", labelsize=7.4, length=2)
     fig.text(0.53, 0.95, "(b) What limits label-only prediction", fontsize=9, fontweight="bold", va="top")
-    share = (gap["v5"] - gap["benchmark known"]) / (gap["v5"] - gap["oracle"])
-    closed = (gap["v5"] - gap["HBS+Prior"]) / (gap["v5"] - gap["benchmark known"])
-    fig.text(0.535, 0.135, f"Unknown benchmark difficulty accounts for {share:.0%} of the\n"
-             f"gap to the oracle; the LLM benchmark prior closes {closed:.0%} of it.", fontsize=7.4, va="top", color="0.25")
     save(fig, "teaser")
 
 
