@@ -248,7 +248,7 @@ Before any labels arrive, item text is the only information available about a ne
 
 \paragraph{Item difficulty within a benchmark.} We prompted Qwen3-8B and Qwen3-32B~\citep{yang2025qwen3} to rate 5,322 training items and fitted a ridge-regression probe on the hidden state of the last prompt token. On the held-out benchmark, the probe ranks items with an average Spearman correlation of 0.24 (8B) and 0.28 (32B), compared with $-0.03$ for bge-small sentence embeddings~\citep{xiao2024cpack}. In the simulator, the probe scores improved Brier ALC by 0.003 and 0.005, respectively.
 
-\paragraph{Benchmark difficulty.} Without examples, both Qwen3 models rated every training benchmark between 6.8 and 7.7 out of 9 on average, although the benchmarks' mean success rates range from 0.22 to 0.62. With nine anchor items from the other benchmarks and their observed success rates in the prompt, only Qwen3.8-27B, the most recent and also the largest of the three models, produced a benchmark-level prior better than the constant of HBS, unlike Qwen3-8B and Qwen3.5-9B~\citep{qwen35} (budget-0 Brier score 0.217 against 0.233; Table~\ref{tab:bench}). A single rating is noisy, but a predictor can average the ratings of all items it is asked about on a benchmark. Four training benchmarks are too few to validate this, so we evaluated it on the test benchmarks (Section~\ref{sec:prior}).
+\paragraph{Benchmark difficulty.} Without examples, both Qwen3 models rated every training benchmark between 6.8 and 7.7 out of 9 on average, although the benchmarks' mean success rates range from 0.22 to 0.62. With nine anchor items from the other benchmarks and their observed success rates in the prompt, only Qwen3.8-27B, the most recent of the four models, produced a benchmark-level prior better than the constant of HBS, with a budget-0 Brier score of 0.217 against 0.233. Qwen3-8B, Qwen3.5-9B~\citep{qwen35} and the larger but older Qwen3-32B did not (Table~\ref{tab:bench}). A single rating is noisy, but a predictor can average the ratings of all items it is asked about on a benchmark. Four training benchmarks are too few to validate this, so we evaluated it on the test benchmarks (Section~\ref{sec:prior}).
 
 \paragraph{Item-level shift on real feedback.}
 \label{sec:itemllm}
@@ -264,7 +264,7 @@ The formative run of the final submission is a check on a fresh draw (Table~\ref
 \section{Discussion and limitations}
 \label{sec:discussion}
 
-\paragraph{Benchmark-level cold start is limited by information.} How difficult a benchmark is for current systems depends on grading strictness, the harness and environment, and recent progress in model capabilities, none of which is stated in its items. Success rates in the test pool cluster by benchmark, so the first few labels are highly informative, whereas a text-based prior helps only if it reflects current capabilities. Only the most recent and largest LLM we rated with anchors helped, and only when its ratings were averaged over a benchmark's items. Current LLMs thus appear to know the approximate difficulty of a kind of task better than that of an individual item.
+\paragraph{Benchmark-level cold start is limited by information.} How difficult a benchmark is for current systems depends on grading strictness, the harness and environment, and recent progress in model capabilities, none of which is stated in its items. Success rates in the test pool cluster by benchmark, so the first few labels are highly informative, whereas a text-based prior helps only if it reflects current capabilities. Only the most recent LLM we rated with anchors helped, not the larger Qwen3-32B, and only when its ratings were averaged over a benchmark's items. Current LLMs thus appear to know the approximate difficulty of a kind of task better than that of an individual item.
 
 \paragraph{Simulation can mislead.} Two changes that helped on the public training pool hurt on real feedback, and both relied on statistics learned across that pool. The subject-ability adjustment assumed its older population of systems, and the item-level shift assumed that difficulty signals from four benchmarks transfer. Leave-one-benchmark-out validation on so few benchmarks cannot detect such shifts, so we adopted a change only if it also held on real feedback.
 
@@ -405,7 +405,7 @@ Do not attempt the task yourself. What share of AI systems solve this task? Answ
   \end{tabular}
 \end{table}
 
-\paragraph{Compute.} One simulator configuration (400 draws) takes about 10 seconds on a CPU. The LLM experiments ran on a single RTX 3090 (24 GB): extracting Qwen3-8B representations for 5,322 items took 12 minutes and Qwen3-32B representations about 50 minutes; the anchored ratings took 10 minutes for Qwen3.5-9B and 28 minutes for Qwen3.8-27B. The formative run of the measurement submission, with 491 evaluation items, completed in under 40 minutes. Software: Python 3.13 for HBS and the simulator; Python 3.10 with PyTorch 2.7.1, Transformers 5.2.0 and bitsandbytes 0.50.2 for the LLM experiments.
+\paragraph{Compute.} One simulator configuration (400 draws) takes about 10 seconds on a CPU. The LLM experiments ran on a single RTX 3090 (24 GB): extracting Qwen3-8B representations for 5,322 items took 12 minutes and Qwen3-32B representations about 50 minutes; the anchored ratings took 10 minutes for Qwen3.5-9B, 22 minutes for Qwen3-32B and 28 minutes for Qwen3.8-27B. The formative run of the measurement submission, with 491 evaluation items, completed in under 40 minutes. Software: Python 3.13 for HBS and the simulator; Python 3.10 with PyTorch 2.7.1, Transformers 5.2.0 and bitsandbytes 0.50.2 for the LLM experiments.
 
 \section{Disclosures}
 \label{app:disclosure}
@@ -534,6 +534,7 @@ Tables~\ref{tab:bench} and~\ref{tab:bench_means} and Figure~\ref{fig:text}a give
     Constant 0.35 (HBS) & --- & 0.233 \\
     Qwen3-8B, mean rating of the benchmark & 0.33 & 0.237 \\
     Qwen3.5-9B, mean rating of the benchmark & $-0.67$ & 0.256 \\
+    Qwen3-32B, mean rating of the benchmark & 0.00 & 0.285 \\
     Qwen3.8-27B, mean rating of the benchmark & 0.67 & 0.217 \\
     Qwen3.8-27B, single item, shrinkage chosen in hindsight & --- & 0.220 \\
     Qwen3.8-27B, single item, shrinkage chosen LOBO & --- & 0.231 \\
@@ -554,6 +555,7 @@ Tables~\ref{tab:bench} and~\ref{tab:bench_means} and Figure~\ref{fig:text}a give
     Actual & 0.125 & 0.341 & 0.366 & 0.645 \\
     Qwen3-8B & 0.206 & 0.108 & 0.378 & 0.340 \\
     Qwen3.5-9B & 0.535 & 0.532 & 0.459 & 0.514 \\
+    Qwen3-32B & 0.330 & 0.384 & 0.700 & 0.210 \\
     Qwen3.8-27B & 0.202 & 0.359 & 0.407 & 0.394 \\
     \bottomrule
   \end{tabular}

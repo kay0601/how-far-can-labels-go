@@ -146,6 +146,7 @@ def text_difficulty():
     a.axhline(0.35, color=GREY, lw=0.8, ls=":", label="HBS prior")
     models = [("Qwen/Qwen3-8B", "o", "#9ecae1", "Qwen3-8B"),
               ("Qwen/Qwen3.5-9B", "^", "#4292c6", "Qwen3.5-9B"),
+              ("Qwen/Qwen3-32B", "v", "#e08214", "Qwen3-32B"),
               ("Qwen/Qwen3.8-27B", "s", "#08306b", "Qwen3.8-27B")]
     models = [m for m in models if m[0] in DATA["anchored"]]
     series = [("actual", "D", "black", "actual", None)] + [(k, mk, c, lab, "predicted") for k, mk, c, lab in models]

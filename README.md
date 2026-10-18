@@ -88,7 +88,7 @@ Run from `improved_mean/`. In the "Needs" column:
 | Section 6.4; Tables 8 and 9 | `python v7_robustness.py` (about 30 minutes) | logs |
 | Section 6.4, the simulator on the training benchmarks | `python llm_prior_sim.py` | data; ratings cached by `llm_anchor.py` |
 | Section 6.3, item difficulty | `python llm_difficulty.py extract --model Qwen/Qwen3-32B --4bit` and `--model Qwen/Qwen3-8B`, then `python llm_difficulty.py eval --model Qwen/Qwen3-32B --model Qwen/Qwen3-8B` and `python llm_sim.py 400 Qwen/Qwen3-32B` | data, GPU |
-| Section 6.3, benchmark difficulty; Table 10; Figure 5a | `python llm_anchor.py extract --model M`, then `python llm_anchor.py eval --model M`, where M is Qwen/Qwen3-8B, Qwen/Qwen3.5-9B, or Qwen/Qwen3.8-27B with `--4bit` | data, GPU |
+| Section 6.3, benchmark difficulty; Table 10; Figure 5a | `python llm_anchor.py extract --model M`, then `python llm_anchor.py eval --model M`, where M is Qwen/Qwen3-8B, Qwen/Qwen3.5-9B, or Qwen/Qwen3-32B or Qwen/Qwen3.8-27B with `--4bit` | data, GPU |
 | HBS+ItemLLM (Section 6.3) | `python build_v6.py`, then `python test_v6.py` | data; GPU for the test |
 | Appendix E: Figure 4, Table 6 | `python proxy_robustness.py` (about 25 minutes) | logs |
 | Appendix E: the benchmark-difficulty diagnostic with alpha 3 and 6, the pessimism of the proxy, the accuracy of the priors, the jackknife over benchmarks | `python appendix_checks.py` (about 20 minutes) | logs |

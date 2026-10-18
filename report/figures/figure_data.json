@@ -84,6 +84,24 @@
     "predicted": 0.5316653907725898
    }
   },
+  "Qwen/Qwen3-32B": {
+   "matharena": {
+    "actual": 0.644976442124029,
+    "predicted": 0.21044779920016768
+   },
+   "multi_swebench": {
+    "actual": 0.12535167239762426,
+    "predicted": 0.32977015564812934
+   },
+   "real_webagents": {
+    "actual": 0.36555891238670696,
+    "predicted": 0.7001234536178127
+   },
+   "researchcodebench": {
+    "actual": 0.34088541666666666,
+    "predicted": 0.38433373139680654
+   }
+  },
   "Qwen/Qwen3.8-27B": {
    "matharena": {
     "actual": 0.644976442124029,

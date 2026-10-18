@@ -79,7 +79,7 @@ def anchored():
             x = x[x.response.isin([0.0, 1.0])]
             resp.append(x.assign(key=b + "/" + x.item_id.astype(str)))
     resp = pd.concat(resp, ignore_index=True)
-    for name in ("Qwen/Qwen3-8B", "Qwen/Qwen3.5-9B", "Qwen/Qwen3.8-27B"):
+    for name in ("Qwen/Qwen3-8B", "Qwen/Qwen3.5-9B", "Qwen/Qwen3-32B", "Qwen/Qwen3.8-27B"):
         z = np.load(llm_anchor.cache_path(name), allow_pickle=True)
         probs = z["probs"] / z["probs"].sum(1, keepdims=True)
         p = pd.Series(np.clip(((probs * np.arange(10)).sum(1) + 0.5) / 10, 0.01, 0.99), index=z["keys"])
