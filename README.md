@@ -82,18 +82,20 @@ Run from `improved_mean/`. In the "Needs" column:
 | Table 1, Figure 5b | `python proxy_validation.py` | logs |
 | Table 2, proxy rows and the SD of the HBS+Ability row; Section 6.2; Appendix E, the check on six reports | `python proxy_baselines.py` | logs |
 | Table 2, mixture prior and re-tuned hyperparameters | `python retune_real.py` | logs |
-| Table 2, simulator rows | `python sim_ablations.py` | data |
+| Table 2, simulator rows; Section 4 and Appendix E, the item correction and both corrections removed | `python sim_ablations.py` | data |
 | Section 6.1, own-label Bayes predictor | `python label_only_bound.py` | logs |
 | Table 7, HBS+Prior rows | `python v7_feedback.py --probe 978024` | logs |
 | Section 6.4; Tables 8 and 9 | `python v7_robustness.py` (about 30 minutes) | logs |
 | Section 6.4, the simulator on the training benchmarks | `python llm_prior_sim.py` | data; ratings cached by `llm_anchor.py` |
 | Section 6.3, item difficulty | `python llm_difficulty.py extract --model Qwen/Qwen3-32B --4bit` and `--model Qwen/Qwen3-8B`, then `python llm_difficulty.py eval --model Qwen/Qwen3-32B --model Qwen/Qwen3-8B` and `python llm_sim.py 400 Qwen/Qwen3-32B` | data, GPU |
-| Section 6.3, benchmark difficulty; Table 10; Figure 5a | `python llm_anchor.py extract --model M`, then `python llm_anchor.py eval --model M`, where M is Qwen/Qwen3-8B, Qwen/Qwen3.5-9B, or Qwen/Qwen3-32B or Qwen/Qwen3.8-27B with `--4bit` | data, GPU |
+| Section 6.3, benchmark difficulty; Table 11; Figure 5a | `python llm_anchor.py extract --model M`, then `python llm_anchor.py eval --model M`, where M is Qwen/Qwen3-8B, Qwen/Qwen3.5-9B, or Qwen/Qwen3-32B or Qwen/Qwen3.8-27B with `--4bit` | data, GPU |
 | HBS+ItemLLM (Section 6.3) | `python build_v6.py`, then `python test_v6.py` | data; GPU for the test |
-| Appendix E: Figure 4, Table 6 | `python proxy_robustness.py` (about 25 minutes) | logs |
-| Appendix E: the benchmark-difficulty diagnostic with alpha 3 and 6, the pessimism of the proxy, the accuracy of the priors, the jackknife over benchmarks | `python appendix_checks.py` (about 20 minutes) | logs |
+| Section 6.3 and Appendix F, HBS+ItemLLM on real feedback: the loss per budget and pair, Table 10 | `python itemllm_checks.py breakdown synthetic` | logs |
+| Appendix F, spread and outcome correlation of the probe scores on the training benchmarks | `python itemllm_checks.py training` | data; features cached by `llm_difficulty.py` |
+| Appendix E: Figure 4, Table 6 | `python proxy_robustness.py` (about 35 minutes) | logs |
+| Appendix E: the benchmark-difficulty diagnostic with alpha 3 and 6, the pessimism of the proxy, the accuracy of the priors, the jackknife over benchmarks, the placement of the LLM prior | `python appendix_checks.py` (about 25 minutes) | logs |
 | Table 4 | `python item_text_difficulty.py` | data |
-| Table 11 | `python figure_data.py` (the `anchored` entry of `report/figures/figure_data.json`) | data, ratings cached by `llm_anchor.py` |
+| Table 12 | `python figure_data.py` (the `anchored` entry of `report/figures/figure_data.json`) | data, ratings cached by `llm_anchor.py` |
 | Figures 1 to 5 | `python figure_data.py` and `python proxy_robustness.py`, then `python ../report/make_figures.py` | logs |
 
 Table and figure numbers refer to `report/main.pdf`.

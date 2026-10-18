@@ -1,12 +1,15 @@
 """Simulator rows of Table 2 in the report: group-stratified label acquisition and removing
-the group correction, each compared with HBS pair by pair on the same simulated draws.
+the group correction, each compared with HBS pair by pair on the same simulated draws, and the
+corrections removed in Section 4 and Appendix E.
 
 - stratified: replays the streaming protocol (sim.stream_acquire) with the hook of
   versions/labeling_stratified.py, against a hook that takes every candidate, which
   reproduces the default random order;
-- group: HBS with the group correction switched off (GROUP_GAMMA = 0).
+- group: HBS with the group correction switched off (GROUP_GAMMA = 0);
+- item: HBS with the item correction switched off (ITEM_GAMMA = 0);
+- corrections: both switched off.
 
-    <venv python> sim_ablations.py [n_draws] [stratified|group]   # default: 400 draws, seed 2024, both
+    <venv python> sim_ablations.py [n_draws] [stratified|group|item|corrections]   # default: 400 draws, seed 2024, all
 """
 
 from __future__ import annotations
@@ -44,17 +47,27 @@ def stratified(draws):
     report("stratified acquisition", base, new)
 
 
-def group(draws):
-    base, new = [], []
-    for draw in draws:
-        base += [alc for _, alc, _ in sim.score_draw(draw, sim.with_params(model.PARAMS))]
-        new += [alc for _, alc, _ in sim.score_draw(draw, sim.with_params(dict(model.PARAMS, GROUP_GAMMA=0.0)))]
-    report("group correction removed", base, new)
+def removed(name, **change):
+    def run(draws):
+        base, new = [], []
+        for draw in draws:
+            base += [alc for _, alc, _ in sim.score_draw(draw, sim.with_params(model.PARAMS))]
+            new += [alc for _, alc, _ in sim.score_draw(draw, sim.with_params(dict(model.PARAMS, **change)))]
+        report(name, base, new)
+    return run
+
+
+ABLATIONS = {
+    "stratified": stratified,
+    "group": removed("group correction removed", GROUP_GAMMA=0.0),
+    "item": removed("item correction removed", ITEM_GAMMA=0.0),
+    "corrections": removed("item and group corrections removed", ITEM_GAMMA=0.0, GROUP_GAMMA=0.0),
+}
 
 
 if __name__ == "__main__":
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 400
-    which = sys.argv[2:] or ["stratified", "group"]
+    which = sys.argv[2:] or list(ABLATIONS)
     draws = sim.build_draws(n, seed=2024)
     for name in which:
-        {"stratified": stratified, "group": group}[name](draws)
+        ABLATIONS[name](draws)

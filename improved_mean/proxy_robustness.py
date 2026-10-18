@@ -8,10 +8,12 @@
    1 - r told apart by the benchmark's rates in other reports. The same rule is first checked
    on the 26 pairs whose root is known (reports that predict 0.35 at budget 0). The
    comparisons of proxy_baselines.py are then repeated (a) on the known pairs only, (b) with
-   every inferred root flipped and (c) with each inferred root flipped at random with the
-   rule's upper 95% error rate on the known pairs.
+   every inferred root flipped, (c) with each inferred root flipped at random with the rule's
+   upper 95% error rate on the known pairs and (d) with each inferred root flipped with its
+   probability of being wrong if rates scatter normally around the benchmark's mean over the
+   known pairs, with the known pairs' within-benchmark standard deviation.
 
-    <venv python> proxy_robustness.py      # about 25 minutes on one CPU
+    <venv python> proxy_robustness.py      # about 35 minutes on one CPU
 """
 
 from __future__ import annotations
@@ -125,6 +127,26 @@ def comparisons(pairs, reps):
     return diffs, share
 
 
+def flip_probabilities():
+    """Probability that each inferred root is wrong under a normal model of rates around the
+    benchmark's mean over the known pairs, with their within-benchmark standard deviation."""
+    by_b = {}
+    for sid, ps in bp.pairs.items():
+        if sid not in AMBIGUOUS:
+            for _, b, r in ps:
+                by_b.setdefault(b, []).append(r)
+    resid = [r - st.mean(v) for v in by_b.values() if len(v) > 1 for r in v]
+    sd = math.sqrt(sum(x * x for x in resid) / max(1, len(resid) - len(by_b)))
+    ref = {b: st.mean(v) for b, v in by_b.items()}
+    prob = {}
+    for sid in AMBIGUOUS:
+        for s, b, r in bp.pairs[sid]:
+            near = math.exp(-0.5 * ((r - ref[b]) / sd) ** 2)
+            far = math.exp(-0.5 * ((1 - r - ref[b]) / sd) ** 2)
+            prob[(sid, s)] = far / (near + far)
+    return sd, prob
+
+
 def root_sensitivity(n_random=40, seed=2):
     out = {"rule": root_rule_check()}
     flip_p = out["rule"]["upper_error"]
@@ -152,6 +174,22 @@ def root_sensitivity(n_random=40, seed=2):
     out["random"] = {"flip_probability": flip_p, "assignments": n_random, "signs_kept": kept,
                      "ranges": {m: [min(d[m] for d, _ in runs), max(d[m] for d, _ in runs)] for m in expected_sign},
                      "share": [min(shares), max(shares)]}
+    sd, prob = flip_probabilities()
+    rng, runs = random.Random(seed + 1), []
+    for _ in range(n_random):
+        coin = {k: rng.random() < p for k, p in prob.items()}
+        runs.append(comparisons(flipped(lambda sid, s: coin[(sid, s)]), reps=300))
+    kept = sum(all(d[m] * sgn > 0 for m, sgn in expected_sign.items()) for d, _ in runs)
+    print(f"weighted flips (SD {sd:.3f}; {sum(prob.values()):.1f} expected flips of {len(prob)}, "
+          f"{sum(p > 0.1 for p in prob.values())} pairs above 0.1): every sign kept in {kept} of {n_random} assignments")
+    for m in expected_sign:
+        vals = [d[m] for d, _ in runs]
+        print(f"  {m}: {min(vals):+.4f} to {max(vals):+.4f}")
+    shares = [s for _, s in runs]
+    print(f"  share: {min(shares):.2f} to {max(shares):.2f}")
+    out["weighted"] = {"sd": sd, "expected_flips": sum(prob.values()), "assignments": n_random, "signs_kept": kept,
+                       "ranges": {m: [min(d[m] for d, _ in runs), max(d[m] for d, _ in runs)] for m in expected_sign},
+                       "share": [min(shares), max(shares)]}
     return out
 
 

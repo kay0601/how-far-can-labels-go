@@ -9,8 +9,10 @@
 3. Accuracy of the LLM priors across the seven test benchmarks: Kendall's tau, mean absolute
    error and the slope of the priors on the benchmarks' mean rates.
 4. Benchmark-level uncertainty of HBS+Prior: leave-one-benchmark-out jackknife.
+5. Placement of the LLM prior: in the global rate g_b, as in HBS+Prior, against g_b fixed at the
+   prior (GLOBAL_K -> infinity). Both predict the prior at budget 0, where the full prior is used.
 
-    <venv python> appendix_checks.py      # about 20 minutes on one CPU
+    <venv python> appendix_checks.py      # about 25 minutes on one CPU
 """
 
 from __future__ import annotations
@@ -122,9 +124,20 @@ def benchmark_jackknife(reps=500, seed=0):
           f"jackknife SE over {len(benches)} benchmarks {se:.4f}")
 
 
+def prior_placement(reps=2000):
+    with_prior = lambda **extra: ("hbs", lambda sid, b, loro: dict(model.PARAMS, PRIOR_MEAN=vr.PRIORS[b], **extra))
+    methods = {"HBS": pb.METHODS["v5 (HBS)"], "in g_b": with_prior(), "g_b fixed": with_prior(GLOBAL_K=1e9)}
+    res = pb.per_report(bp.pairs, methods, reps=reps)
+    size = sum(len(ps) for ps in bp.pairs.values())
+    alc = {m: sum(res[m].values()) / size for m in methods}
+    print(f"LLM prior in g_b {alc['in g_b'] - alc['HBS']:+.4f}, g_b fixed at the prior {alc['g_b fixed'] - alc['HBS']:+.4f} "
+          f"(difference {alc['g_b fixed'] - alc['in g_b']:+.4f})")
+
+
 if __name__ == "__main__":
     diagnostic(bp.pairs, "69 pairs")
     diagnostic({sid: ps for sid, ps in bp.pairs.items() if sid not in bp.INFERRED}, "26 known pairs")
     finite_pool()
     prior_accuracy()
     benchmark_jackknife()
+    prior_placement()
