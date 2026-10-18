@@ -56,7 +56,7 @@ def teaser():
     steps = [
         ("Each submission is scored on a new random draw:\nscores mix method quality with draw difficulty", "0.95"),
         ("At budget 0 a pair's predictions are constant,\nso $r(1-r) = \\mathrm{Brier} - \\mathrm{ECE}^2$", "0.95"),
-        ("Eight reports yield 69 real pairs\nwith known success rates $r$", "0.95"),
+        ("Eight reports yield 69 real pairs\nwith recovered success rates $r$", "0.95"),
         ("Score any label-only predictor\non the same pairs", "#e8f0fb"),
     ]
     y, h = 0.80, 0.135

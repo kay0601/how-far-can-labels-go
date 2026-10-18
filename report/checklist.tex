@@ -19,7 +19,7 @@
 \item {\bf Limitations}
     \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Section~\ref{sec:discussion} (Limitations) covers the proxy's assumptions and pessimism, the number of pairs and benchmarks, the single real draw for the item-level LLM shift, the single measurement of the LLM prior, and the model sizes we tested.
+    \item[] Justification: Section~\ref{sec:discussion} (Limitations) covers the proxy's assumptions and pessimism, the inferred roots, the number of pairs and benchmarks, the single real draw for the item-level LLM shift, the single measurement of the LLM prior, and the model sizes we tested.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that the paper has no limitation while the answer \answerNo{} means that the paper has limitations, but those are not discussed in the paper. 
@@ -49,7 +49,7 @@
     \item {\bf Experimental result reproducibility}
     \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Section~\ref{sec:method} and Table~\ref{tab:hparams} fully specify HBS and HBS+Prior; Sections~\ref{sec:proxy} and~\ref{sec:text} and Appendices~\ref{app:prompts} and~\ref{app:repro} give the proxy, the measurement submission, the simulator, prompts and data; the repository README gives the exact commands. Reproducing the proxy and the measurement analysis requires a team's own formative logs, which the competition keeps private.
+    \item[] Justification: Section~\ref{sec:method} and Table~\ref{tab:hparams} fully specify HBS and HBS+Prior; Sections~\ref{sec:setup}, \ref{sec:proxy} and~\ref{sec:text} and Appendices~\ref{app:prompts} and~\ref{app:repro} give the simulator, the proxy, the measurement submission, prompts and data; the repository README gives the exact commands. Reproducing the proxy and the measurement analysis requires a team's own formative logs, which the competition keeps private.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that the paper does not include experiments.
@@ -86,7 +86,7 @@
 \item {\bf Experimental setting/details}
     \item[] Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer) necessary to understand the results?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Section~\ref{sec:method} gives all hyperparameters and how they were set; Section~\ref{sec:proxy} gives the proxy and simulator protocols and the held-out selection; Section~\ref{sec:text} and Appendix~\ref{app:prompts} give the LLM settings.
+    \item[] Justification: Section~\ref{sec:method} gives all hyperparameters and how they were set; Sections~\ref{sec:setup} and~\ref{sec:proxy} give the simulator and proxy protocols and the held-out selection; Section~\ref{sec:text} and Appendix~\ref{app:prompts} give the LLM settings.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that the paper does not include experiments.
@@ -126,7 +126,7 @@
 \item {\bf Code of ethics}
     \item[] Question: Does the research conducted in the paper conform, in every respect, with the NeurIPS Code of Ethics \url{https://neurips.cc/public/EthicsGuidelines}?
     \item[] Answer: \answerYes{}
-    \item[] Justification: The work uses public benchmark data and our own formative feedback as permitted by the competition rules, involves no human subjects, and releases no recovered test data (Section~\ref{sec:discussion}).
+    \item[] Justification: The work uses public benchmark data and our own formative feedback as permitted by the competition rules, involves no human subjects, and releases no recovered test data (Section~\ref{sec:measure}).
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that the authors have not reviewed the NeurIPS Code of Ethics.
