@@ -80,7 +80,7 @@ Run from `improved_mean/`. In the "Needs" column:
 | Result in the report | Command | Needs |
 |---|---|---|
 | Table 1, Figure 5b | `python proxy_validation.py` | logs |
-| Table 2, proxy rows; Section 6.2; Table 7, last row; Appendix E, the check on six reports | `python proxy_baselines.py` | logs |
+| Table 2, proxy rows and the SD of the HBS+Ability row; Section 6.2; Appendix E, the check on six reports | `python proxy_baselines.py` | logs |
 | Table 2, mixture prior and re-tuned hyperparameters | `python retune_real.py` | logs |
 | Table 2, simulator rows | `python sim_ablations.py` | data |
 | Section 6.1, own-label Bayes predictor | `python label_only_bound.py` | logs |
@@ -91,7 +91,9 @@ Run from `improved_mean/`. In the "Needs" column:
 | Section 6.3, benchmark difficulty; Table 10; Figure 5a | `python llm_anchor.py extract --model M`, then `python llm_anchor.py eval --model M`, where M is Qwen/Qwen3-8B, Qwen/Qwen3.5-9B, or Qwen/Qwen3.8-27B with `--4bit` | data, GPU |
 | HBS+ItemLLM (Section 6.3) | `python build_v6.py`, then `python test_v6.py` | data; GPU for the test |
 | Appendix E: Figure 4, Table 6 | `python proxy_robustness.py` (about 25 minutes) | logs |
+| Appendix E: the benchmark-difficulty diagnostic with alpha 3 and 6, the pessimism of the proxy, the accuracy of the priors, the jackknife over benchmarks | `python appendix_checks.py` (about 20 minutes) | logs |
 | Table 4 | `python item_text_difficulty.py` | data |
+| Table 11 | `python figure_data.py` (the `anchored` entry of `report/figures/figure_data.json`) | data, ratings cached by `llm_anchor.py` |
 | Figures 1 to 5 | `python figure_data.py` and `python proxy_robustness.py`, then `python ../report/make_figures.py` | logs |
 
 Table and figure numbers refer to `report/main.pdf`.
