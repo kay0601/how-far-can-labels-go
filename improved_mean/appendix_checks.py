@@ -4,8 +4,10 @@
    with g_b fixed at the benchmark's rate (GLOBAL_K -> infinity): change from HBS with 95%
    intervals over reports, and the share of HBS's gap to the oracle, on all 69 pairs and on
    the 26 pairs with known roots.
-2. Pessimism of the proxy: labels drawn without replacement from a pool of |E_j| items with
-   the pair's success rate, against independent draws, for the three retained submissions.
+2. Pessimism of the proxy, for the three retained submissions: labels drawn without replacement
+   from a pool of |E_j| items with the pair's success rate, and from an acquisition half of a
+   random split (its rate drawn given the evaluation rate, with a uniform prior on the pair's
+   rate), against independent draws.
 3. Accuracy of the LLM priors across the seven test benchmarks: Kendall's tau, mean absolute
    error and the slope of the priors on the benchmarks' mean rates.
 4. Benchmark-level uncertainty of HBS+Prior: leave-one-benchmark-out jackknife.
@@ -62,7 +64,7 @@ def diagnostic(pairs, label, boots=4000):
               f"share {share(m, sids):.2f} [{s[lo]:.2f}, {s[hi]:.2f}]")
 
 
-def finite_pool(reps=2000, seed=0):
+def finite_pool(reps=2000, seed=0, random_split=False):
     v1 = pv._load("versions/model_v1.py", "model_v1")
     v4 = pv._load("versions/model_v4.py", "model_v4")
     rows = [("smoothed mean", "951748", v1, v1.PARAMS, proxy.DRAWS["report1"]),
@@ -75,7 +77,11 @@ def finite_pool(reps=2000, seed=0):
             acq = {}
             for s, b, r in pairs:
                 n = sizes[(s, b)]
-                pool = [1] * round(r * n) + [0] * (n - round(r * n))
+                k = round(r * n)
+                if random_split:
+                    rate = rng.betavariate(k + 1, n - k + 1)
+                    k = sum(rng.random() < rate for _ in range(n))
+                pool = [1] * k + [0] * (n - k)
                 rng.shuffle(pool)
                 acq[s] = pool[:31]
             alc = 0.0
@@ -86,7 +92,9 @@ def finite_pool(reps=2000, seed=0):
                                         for s, b, r in pairs)
             out.append(alc)
         bern = pv.alc_samples(mod, params, pairs)
-        print(f"{name}: finite pool {st.mean(out):.4f} vs independent {st.mean(bern):.4f} ({st.mean(out) - st.mean(bern):+.4f})")
+        label = "random split" if random_split else "finite pool"
+        print(f"{name}: {label} {st.mean(out):.4f} (SD {st.pstdev(out):.4f}) vs independent {st.mean(bern):.4f} "
+              f"({st.mean(out) - st.mean(bern):+.4f})")
 
 
 def prior_accuracy():
@@ -138,6 +146,7 @@ if __name__ == "__main__":
     diagnostic(bp.pairs, "69 pairs")
     diagnostic({sid: ps for sid, ps in bp.pairs.items() if sid not in bp.INFERRED}, "26 known pairs")
     finite_pool()
+    finite_pool(random_split=True)
     prior_accuracy()
     benchmark_jackknife()
     prior_placement()

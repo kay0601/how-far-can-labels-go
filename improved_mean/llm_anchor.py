@@ -201,6 +201,13 @@ def evaluate(model_name):
         print(f"{b:<20}{actual:>8.3f}{pred:>8.3f}   {'':16}" + "".join(f"{v:>{w}.4f}" for v, w in zip(briers, (7, 10, 10, 8)))
               + f"   {rho:+.3f}")
     print(f"{'mean':<36}{'':16}" + "".join(f"{v:>{w}.4f}" for v, w in zip(tot / len(BENCHES), (7, 10, 10, 8))))
+    # single items: each item's own rating shrunk toward 0.35, p = 0.35 + w (rating - 0.35)
+    ws = (0.0, 0.25, 0.5, 0.75, 1.0)
+    per = {b: [((PRIOR + w * (g.p - PRIOR) - g.response) ** 2).mean() for w in ws] for b, g in resp.groupby("bench")}
+    mean = np.mean([per[b] for b in BENCHES], axis=0)
+    lobo = [per[b][int(np.argmin(np.mean([per[o] for o in BENCHES if o != b], axis=0)))] for b in BENCHES]
+    print(f"single item, w in {ws}: in hindsight w = {ws[int(np.argmin(mean))]} gives {mean.min():.4f}; "
+          f"w chosen leave-one-benchmark-out gives {np.mean(lobo):.4f}")
 
 
 if __name__ == "__main__":
