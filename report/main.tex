@@ -43,7 +43,7 @@
 \maketitle
 
 \begin{abstract}
-Predictive evaluation estimates whether an AI system will solve a benchmark item from a few observed outcomes. We study the benchmark-level cold start of the Predictive AI Evaluation Competition, where every test item comes from a benchmark absent from the training data and at most 31 outcomes are revealed per system--benchmark pair. Because each formative submission is scored on a new random sample, raw scores mix method quality with sample difficulty. We recover each pair's success rate from its budget-0 Brier score and calibration error and build a proxy that compares label-only predictors on 69 real test pairs and reproduces our submissions' scores within label noise. On this proxy, hierarchical Beta-Binomial shrinkage (HBS), which requires no training, improves on the official baseline by 0.028 Brier ALC and outperforms a Bayes-optimal predictor that uses only each pair's own labels. More than half of its remaining gap to an oracle comes from not knowing a new benchmark's difficulty. Item-level LLM difficulty estimates did not transfer to the test benchmarks, but averaging Qwen3.8-27B's ratings over a benchmark's items gives a prior that recovers about two fifths of this component, a further 0.007 on the seven test benchmarks, which are too few to establish the gain for new ones. On a fresh test sample, it lowered the budget-0 Brier score from 0.224 to 0.190. HBS with this prior is our final submission.
+Predictive evaluation estimates whether an AI system will solve a benchmark item from a few observed outcomes. We study the benchmark-level cold start of the Predictive AI Evaluation Competition, where every test item comes from a benchmark absent from the training data and at most 31 outcomes are revealed per system--benchmark pair. Because each formative submission is scored on a new random sample, raw scores mix method quality with sample difficulty. We recover each pair's success rate from its budget-0 Brier score and calibration error and build a proxy that compares label-only predictors on 69 real test pairs and reproduces our submissions' scores within label noise. On this proxy, hierarchical Beta-Binomial shrinkage (HBS), which requires no training, improves on the official baseline by 0.028 Brier ALC and outperforms a Bayes-optimal predictor that uses only each pair's own labels. More than half of its remaining gap to an oracle comes from not knowing a new benchmark's difficulty. Item-level LLM difficulty estimates did not transfer to the test benchmarks, but averaging Qwen3.8-27B's ratings over a benchmark's items gives a prior that recovers about two fifths of this component, a further 0.007 on the seven test benchmarks. Seven benchmarks are too few to establish this gain for new ones. On a fresh test sample, it lowered the budget-0 Brier score from 0.224 to 0.190. HBS with this prior is our final submission.
 \end{abstract}
 
 \begin{figure}[h!]
@@ -315,7 +315,7 @@ Table~\ref{tab:versions} lists the formative submissions referred to in this pap
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.6\linewidth]{figures/draw_limits.pdf}
+  \includegraphics[width=0.655\linewidth]{figures/draw_limits.pdf}
   \caption{Oracle limit and achieved Brier ALC of the eight formative submissions used to build the proxy. The oracle limit measures the difficulty of each draw, independently of the method.}
   \label{fig:draws}
 \end{figure}

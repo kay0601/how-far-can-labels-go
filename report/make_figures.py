@@ -52,7 +52,7 @@ def teaser():
     left.set_axis_off()
     left.set_xlim(0, 1)
     left.set_ylim(0, 1)
-    left.text(0.03, 0.95, "(a) A real-feedback proxy", fontsize=9, fontweight="bold", va="top")
+    left.text(0.03, 0.95, "(a) A real-feedback proxy", fontsize=9.5, fontweight="bold", va="top")
     steps = [
         ("Each submission is scored on a new random draw:\nscores mix method quality with draw difficulty", "0.95"),
         ("At budget 0 a pair's predictions are constant,\nso $r(1-r) = \\mathrm{Brier} - \\mathrm{ECE}^2$", "0.95"),
@@ -64,7 +64,7 @@ def teaser():
         top = y - i * 0.195
         left.add_patch(FancyBboxPatch((0.05, top - h), 0.88, h, boxstyle="round,pad=0.008,rounding_size=0.02",
                                       fc=face, ec=GREY, lw=0.6))
-        left.text(0.49, top - h / 2, text, ha="center", va="center", fontsize=7.2)
+        left.text(0.49, top - h / 2, text, ha="center", va="center", fontsize=8)
         if i < len(steps) - 1:
             left.annotate("", xy=(0.49, top - h - 0.055), xytext=(0.49, top - h - 0.004),
                           arrowprops=dict(arrowstyle="-|>", color=GREY, lw=0.8))
@@ -78,19 +78,19 @@ def teaser():
     ys = list(range(len(bars)))[::-1]
     for yv, (name, val, color) in zip(ys, bars):
         ax.barh(yv, val, color=color, height=0.6)
-        ax.text(val + 0.003, yv, f"{val:.3f}", va="center", fontsize=8, fontweight="bold" if color == PRIOR else "normal")
+        ax.text(val + 0.003, yv, f"{val:.3f}", va="center", fontsize=8.6, fontweight="bold" if color == PRIOR else "normal")
     ax.set_yticks(ys)
-    ax.set_yticklabels([b[0] for b in bars], fontsize=7.6)
+    ax.set_yticklabels([b[0] for b in bars], fontsize=8.4)
     ax.set_xlim(0, 0.30)
-    ax.set_xlabel("Brier ALC on 69 real pairs", fontsize=7.6)
-    ax.tick_params(axis="both", labelsize=7.4, length=2)
-    fig.text(0.53, 0.95, "(b) What limits label-only prediction", fontsize=9, fontweight="bold", va="top")
+    ax.set_xlabel("Brier ALC on 69 real pairs", fontsize=8.4)
+    ax.tick_params(axis="both", labelsize=8, length=2)
+    fig.text(0.53, 0.95, "(b) What limits label-only prediction", fontsize=9.5, fontweight="bold", va="top")
     save(fig, "teaser")
 
 
 def draw_limits():
     """Oracle limit and achieved score of each scored draw."""
-    fig, ax = plt.subplots(figsize=(5.5, 2.6))
+    fig, ax = plt.subplots(figsize=(3.6, 2.1))  # shown at this size
     for i, (label, limit, score) in enumerate(DRAWS):
         y = len(DRAWS) - 1 - i
         ax.plot([limit, score], [y, y], color=LIGHT, lw=1.5, zorder=1)
@@ -108,7 +108,7 @@ def draw_limits():
     ax.set_axisbelow(True)
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0)
-    ax.legend(loc="upper right", frameon=False)
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2, frameon=False)
     fig.tight_layout()
     save(fig, "draw_limits")
 
@@ -117,20 +117,19 @@ def gap_by_budget():
     """Mean Brier per budget: where v5 loses against knowing benchmark difficulty."""
     g, budgets = DATA["gap_by_budget"], DATA["budgets"]
     x = list(range(len(budgets)))
-    fig, ax = plt.subplots(figsize=(3.3, 2.0))  # shown at about this size, so 7-8 pt text stays legible
+    fig, ax = plt.subplots(figsize=(2.53, 1.55))  # shown at this size, so 7-8 pt text stays legible
     ax.fill_between(x, g["benchmark known"], g["v5"], color=ACCENT, alpha=0.12, lw=0)
     ax.plot(x, g["v5"], color=ACCENT, marker="o", ms=3.5, lw=1.4, label="HBS")
-    ax.plot(x, g["HBS+Prior"], color=PRIOR, marker="s", ms=3.2, lw=1.3, label="HBS+Prior (final submission)")
+    ax.plot(x, g["HBS+Prior"], color=PRIOR, marker="s", ms=3.2, lw=1.3, label="HBS+Prior (final)")
     ax.plot(x, g["benchmark known"], color=GREY, marker="o", ms=3.5, lw=1.2, ls="--",
-            label="HBS, benchmark rate known (diagnostic)")
-    ax.plot(x, g["oracle"], color=LIGHT, lw=1.2, label="Oracle (pair rate known)")
+            label="Benchmark rate known")
+    ax.plot(x, g["oracle"], color=LIGHT, lw=1.2, label="Oracle")
     ax.set_xticks(x)
     ax.set_xticklabels([str(b) for b in budgets])
-    ax.set_xlabel("Label budget (labels per pair)", fontsize=7.5)
-    ax.set_ylabel("Mean Brier, 69 real pairs", fontsize=7.5)
+    ax.set_xlabel("Label budget", fontsize=7.5)
+    ax.set_ylabel("Mean Brier", fontsize=7.5)
     ax.tick_params(labelsize=7)
-    ax.text(0.12, 0.1695, "unknown benchmark\ndifficulty", fontsize=7, color=ACCENT, va="center")
-    ax.legend(frameon=False, fontsize=6.5, loc="upper right", handlelength=1.6)
+    ax.legend(frameon=False, fontsize=7, loc="upper right", handlelength=1.6)
     ax.grid(axis="y", color="0.92", lw=0.8)
     ax.set_axisbelow(True)
     fig.tight_layout()
