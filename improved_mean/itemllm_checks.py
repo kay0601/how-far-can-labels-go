@@ -44,6 +44,8 @@ SYNTHETIC = [  # name, sigma, rho, q, s_out, w, first
     ("training-like", 1, 0.2, 0, 0, 0, None),
     ("training-like, one extreme early score", 1, 0.2, 0, 0, 0, 12),
     ("uninformative", 3, 0.0, 0, 0, 0, None),
+    ("negatively informative", 1, -0.2, 0, 0, 0, None),
+    ("negatively informative", 3, -0.5, 0, 0, 0, None),
     ("5% extreme, uninformative", 1, 0.2, 0.05, 20, 0, None),
     ("uninformative on a quarter of benchmarks", 6, 0.6, 0, 0, 0.25, None),
     ("wide, informative", 4, 0.45, 0, 0, 0, None),
@@ -145,7 +147,7 @@ def synthetic_run(job, reps=300, seed=0):
 
 def synthetic():
     target = loss_benchmark()
-    with Pool(len(SYNTHETIC)) as pool:
+    with Pool(6) as pool:
         for (name, sigma, rho, q, s_out, w, first), excess in pool.map(synthetic_run, [(c, target) for c in SYNTHETIC]):
             extra = (f", {100 * q:.0f}% of items with spread {s_out:g} and rho 0" if q else "") + \
                     (f", rho 0 on each benchmark with probability {w:g}" if w else "") + \

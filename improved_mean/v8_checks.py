@@ -14,8 +14,10 @@ its expected Brier score is integrated over the rating noise, including the clip
 5. redraw: each measured prior redrawn from its sampling distribution.
 6. budgets: mean Brier per budget of v8 (Figure 2) and its Brier ALC (Figure 1).
 7. final SID: a formative run of v8 against the proxy's expectations on its own pairs.
+8. lobo: the settings chosen leave-one-benchmark-out (K0 = 5), each held-out benchmark scored with
+   the setting that is best on the other six, against HBS and v7.
 
-    <venv python> v8_checks.py [compare grid jackknife known redraw budgets] [final SID]
+    <venv python> v8_checks.py [compare grid jackknife known redraw budgets lobo] [final SID]
 """
 
 from __future__ import annotations
@@ -163,6 +165,59 @@ def _per_pair(cfg, reps=600, seed=0):
     return acc
 
 
+def _lobo_part(i, n=6, reps=600, seed=0):
+    """Weighted Brier per pair (summed over budgets) of HBS and of every K0 = 5 grid setting."""
+    cfgs = [c for c in GRID if c["K0"] == 5.0][i::n]
+    rng, acc = random.Random(seed), {}
+    for sid, draw in sorted(bp.pairs.items()):
+        counts = vf.eval_counts(sid)
+        a = {(s, b): [0.0] * (len(cfgs) + 1) for s, b, _ in draw}
+        for s, b, r in draw:
+            for ci, c in enumerate(cfgs):
+                a[(s, b)][ci + 1] += 0.1 * running_b0(r, RAW[b], counts[(s, b)], c)
+            a[(s, b)][0] += 0.1 * (r * (1 - r) + (model.PARAMS["PRIOR_MEAN"] - r) ** 2)
+        for _ in range(reps):
+            acq = {s: [int(rng.random() < r) for _ in range(31)] for s, _, r in draw}
+            for weight, budget in zip(sim.WEIGHTS[1:], sim.BUDGETS[1:]):
+                labeled = [[proxy._inp(s, b, i), y] for s, b, _ in draw for i, y in enumerate(acq[s][:budget])]
+                summary = model._summarize(labeled)
+                for s, b, r in draw:
+                    inp = proxy._inp(s, b, "eval")
+                    ps = [model.predict_with(model.PARAMS, inp, labeled, summary)]
+                    ps += [model.predict_with(params(PRIORS[b], c), inp, labeled, summary) for c in cfgs]
+                    for ci, q in enumerate(ps):
+                        a[(s, b)][ci] += weight * (r * (1 - r) + (q - r) ** 2) / reps
+        for (s, b), v in a.items():
+            acc[(sid, s, b)] = v
+    return cfgs, acc
+
+
+def lobo():
+    with Pool(6) as pool:
+        parts = pool.map(_lobo_part, range(6))
+    cfgs, acc = [], {k: [] for k in parts[0][1]}
+    for cs, part in parts:
+        cfgs += cs
+        for k, v in part.items():
+            acc[k] += v[1:]
+    hbs = {k: v[0] for k, v in parts[0][1].items()}
+    v7, v8 = cfgs.index(V7), cfgs.index(V8)
+    benches = sorted({b for _, _, b in acc})
+    chosen, out = [], {}
+    for h in benches:
+        rest = [k for k in acc if k[2] != h]
+        pick = min(range(len(cfgs)), key=lambda c: sum(acc[k][c] for k in rest))
+        chosen.append(cfgs[pick])
+        out.update({k: acc[k][pick] for k in acc if k[2] == h})
+    for label, base in (("HBS", hbs), ("v7", {k: v[v7] for k, v in acc.items()})):
+        d = {k: out[k] - base[k] for k in acc}
+        fixed = {k: acc[k][v8] - base[k] for k in acc}
+        per_b = [st.mean(x for k, x in d.items() if k[2] == h) for h in benches]
+        print(f"leave-one-benchmark-out choice - {label}: {st.mean(d.values()):+.4f} (fixed v8 {st.mean(fixed.values()):+.4f}); "
+              f"better on {sum(x < 0 for x in per_b)} of {len(benches)} benchmarks")
+    print("chosen settings: " + "; ".join(f"stretch {c['stretch']:g}, alpha {c['ALPHA']:g}, GLOBAL_K {c['GLOBAL_K']:g}" for c in chosen))
+
+
 def jackknife():
     acc = _per_pair(V8)
     benches = sorted({b for _, _, b in acc})
@@ -260,4 +315,5 @@ if __name__ == "__main__":
         final(args[1])
     else:
         for name in args:
-            {"compare": compare, "grid": grid, "jackknife": jackknife, "known": known, "redraw": redraw, "budgets": budgets}[name]()
+            {"compare": compare, "grid": grid, "jackknife": jackknife, "known": known, "redraw": redraw, "budgets": budgets,
+             "lobo": lobo}[name]()

@@ -92,6 +92,7 @@ Run from `improved_mean/`. In the "Needs" column:
 | Section 6.4, settings of HBS; Tables 8 and 9 (978186) | `python v7_robustness.py` (about 30 minutes) | logs |
 | Section 6.4, settings of the final submission; Table 7, final row; Appendix E, the final settings | `python v8_checks.py compare grid jackknife known redraw budgets` | logs |
 | Section 6.4 and Table 9, the run of the final submission | `python v8_checks.py final 1013135` | logs |
+| Section 6.4 and Appendix E, the settings chosen leave-one-benchmark-out | `python v8_checks.py lobo` | logs |
 | Section 6.4, the simulator on the training benchmarks | `python llm_prior_sim.py` | data; ratings cached by `llm_anchor.py` |
 | Section 6.3, item difficulty | `python llm_difficulty.py extract --model Qwen/Qwen3-32B --4bit` and `--model Qwen/Qwen3-8B`, then `python llm_difficulty.py eval --model Qwen/Qwen3-32B --model Qwen/Qwen3-8B` and `python llm_sim.py 400 Qwen/Qwen3-32B` | data, GPU |
 | Section 6.3, benchmark difficulty; Table 11; Figure 5a | `python llm_anchor.py extract --model M`, then `python llm_anchor.py eval --model M`, where M is Qwen/Qwen3-8B, Qwen/Qwen3.5-9B, or Qwen/Qwen3-32B or Qwen/Qwen3.8-27B with `--4bit` | data, GPU |
