@@ -2,9 +2,10 @@
 
 - gap_by_budget: mean Brier per budget on the 69 proxy pairs for v5, for v5 with each
   benchmark's mean success rate known in advance (estimated from the other reports,
-  ALPHA 6), for HBS+Prior (v7: PRIOR_MEAN from the LLM benchmark priors measured by the
+  ALPHA 6), for HBS+Prior (PRIOR_MEAN from the LLM benchmark priors measured by the
   probe submission, read from its private scoring log; the budget-0 running mean is
-  modelled as in v7_feedback.running_b0), and for the oracle that knows every pair's rate.
+  modelled as in v7_feedback.running_b0) with the settings of HBS (v7) and with those of the
+  final submission (v8, v8_checks.py), and for the oracle that knows every pair's rate.
   Only these aggregate curves are saved, not the per-benchmark priors.
 - anchored: per held-out training benchmark, the actual success rate and the mean
   prediction of the anchored LLM prompts (llm_anchor.py caches; Qwen3-8B, Qwen3.5-9B, Qwen3.8-27B).
@@ -33,6 +34,7 @@ import proxy
 import proxy_validation as pv
 import sim
 import v7_feedback
+import v8_checks
 
 PROBE = "978024"  # the v7 probe submission
 OUT = Path(__file__).resolve().parent.parent / "report" / "figures" / "figure_data.json"
@@ -44,7 +46,8 @@ def gap_by_budget(reps=1000, seed=0):
         priors = v7_feedback.probe_priors(PROBE)
     llm = lambda sid, b: dict(model.PARAMS, PRIOR_MEAN=priors[b])
     rng = random.Random(seed)
-    out = {"v5": [0.0] * 6, "benchmark known": [0.0] * 6, "HBS+Prior": [0.0] * 6}
+    final = lambda sid, b: v8_checks.params(priors[b], v8_checks.V8)
+    out = {"v5": [0.0] * 6, "benchmark known": [0.0] * 6, "HBS+Prior, settings of HBS": [0.0] * 6, "HBS+Prior": [0.0] * 6}
     n = sum(len(ps) for ps in bp.pairs.values())
     for _ in range(reps):
         for sid, ps in bp.pairs.items():
@@ -54,7 +57,7 @@ def gap_by_budget(reps=1000, seed=0):
                 summary = model._summarize(labeled)
                 for s, b, r in ps:
                     for name, params in (("v5", model.PARAMS), ("benchmark known", known(sid, b)),
-                                         ("HBS+Prior", llm(sid, b))):
+                                         ("HBS+Prior, settings of HBS", llm(sid, b)), ("HBS+Prior", final(sid, b))):
                         p = model.predict_with(params, proxy._inp(s, b, "eval"), labeled, summary)
                         out[name][bi] += (r * (1 - r) + (p - r) ** 2) / (reps * n)
     # budget 0 of HBS+Prior: the prior grows item by item (running mean of ratings), not the full mean
@@ -62,7 +65,9 @@ def gap_by_budget(reps=1000, seed=0):
     n_rated = {}
     for (_, b), k in counts_probe.items():
         n_rated[b] = n_rated.get(b, 0) + k
-    out["HBS+Prior"][0] = st.mean(v7_feedback.running_b0(r, priors[b], v7_feedback.eval_counts(sid)[(s, b)], n_rated[b], 0.205)
+    out["HBS+Prior, settings of HBS"][0] = st.mean(v7_feedback.running_b0(r, priors[b], v7_feedback.eval_counts(sid)[(s, b)], n_rated[b], 0.205)
+                                                   for sid, ps in bp.pairs.items() for s, b, r in ps)
+    out["HBS+Prior"][0] = st.mean(v8_checks.running_b0(r, v8_checks.RAW[b], v7_feedback.eval_counts(sid)[(s, b)], v8_checks.V8)
                                   for sid, ps in bp.pairs.items() for s, b, r in ps)
     out["oracle"] = [st.mean(r * (1 - r) for ps in bp.pairs.values() for _, _, r in ps)] * 6
     out["alc"] = {k: sum(w * v for w, v in zip(sim.WEIGHTS, vals)) for k, vals in out.items()}
