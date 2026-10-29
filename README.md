@@ -93,7 +93,7 @@ Run from `improved_mean/`. In the "Needs" column:
 | Section 6.4, settings of the final submission; Table 7, final row; Appendix E, the final settings | `python v8_checks.py compare grid jackknife known redraw budgets` | logs |
 | Section 6.4 and Table 9, the run of the final submission | `python v8_checks.py final 1013135` | logs |
 | Section 6.4 and Appendix E, the settings chosen leave-one-benchmark-out | `python v8_checks.py lobo` | logs |
-| Section 6.4, the simulator on the training benchmarks | `python llm_prior_sim.py` | data; ratings cached by `llm_anchor.py` |
+| Section 6.4, the simulator on the training benchmarks | `python llm_prior_sim.py`, after `figure_data.py` | data; ratings cached by `llm_anchor.py` |
 | Section 6.3, item difficulty | `python llm_difficulty.py extract --model Qwen/Qwen3-32B --4bit` and `--model Qwen/Qwen3-8B`, then `python llm_difficulty.py eval --model Qwen/Qwen3-32B --model Qwen/Qwen3-8B` and `python llm_sim.py 400 Qwen/Qwen3-32B` | data, GPU |
 | Section 6.3, benchmark difficulty; Table 11; Figure 5a | `python llm_anchor.py extract --model M`, then `python llm_anchor.py eval --model M`, where M is Qwen/Qwen3-8B, Qwen/Qwen3.5-9B, or Qwen/Qwen3-32B or Qwen/Qwen3.8-27B with `--4bit` | data, GPU |
 | HBS+ItemLLM (Section 6.3) | `python build_v6.py`, then `python test_v6.py` | data; GPU for the test |
@@ -102,10 +102,10 @@ Run from `improved_mean/`. In the "Needs" column:
 | Appendix E: Figure 4, Table 6 | `python proxy_robustness.py` (about 35 minutes) | logs |
 | Appendix E: the benchmark-difficulty diagnostic with alpha 3 and 6, the pessimism of the proxy, the accuracy of the priors, the jackknife over benchmarks, the placement of the LLM prior | `python appendix_checks.py` (about 25 minutes) | logs |
 | Table 4 | `python item_text_difficulty.py` | data |
-| Table 12 | `python figure_data.py` (the `anchored` entry of `report/figures/figure_data.json`) | data, ratings cached by `llm_anchor.py` |
-| Figures 1 to 5 | `python figure_data.py` and `python proxy_robustness.py`, then `python ../report/make_figures.py` | logs |
+| Table 12 | `python figure_data.py` (the `anchored` entry of `results/figure_data.json`) | data, ratings cached by `llm_anchor.py` |
+| Data plotted in Figures 1 to 5 | `python figure_data.py` and `python proxy_robustness.py` (written to `results/`) | logs |
 
-Table and figure numbers refer to `report/main.pdf`.
+Table and figure numbers refer to the report.
 
 **Development tools not tied to a single result:**
 - `tune.py` is the grid search over the simulator and the proxy of two early reports, used to set the hyperparameters of HBS.
@@ -117,7 +117,7 @@ Table and figure numbers refer to `report/main.pdf`.
 **Where outputs go.**
 - LLM features are cached in `improved_mean/cache/`.
 - Built archives go to `improved_mean/dist/`.
-- Figure data go to `report/figures/`.
+- Figure data go to `improved_mean/results/` (set `PAIEC_RESULTS` to change it).
 
 ## Repository layout
 
@@ -127,12 +127,11 @@ improved_mean/   predictors, submission builders, simulator, proxy and analyses
   v6/ v7/ v8/    submission code of HBS+ItemLLM, HBS+Prior and the final submission
   versions/      earlier predictors, the mixture prior and the stratified acquisition hook
   paths.py       where the data, the official tools and the logs are found
-report/          LaTeX source of the report, figures and make_figures.py
 ```
 
 ## License
 
-The code is released under the MIT License (see `LICENSE`). The training data are not included; measurement-db remains under its own license (CC BY-SA 4.0, gated access). The report in `report/` uses the NeurIPS 2026 style file.
+The code is released under the MIT License (see `LICENSE`). The training data are not included; measurement-db remains under its own license (CC BY-SA 4.0, gated access).
 
 ## Citation
 

@@ -1,4 +1,4 @@
-"""Numbers behind the report's figures, written to ../report/figures/figure_data.json.
+"""Numbers behind the report's figures, written to figure_data.json in paths.RESULTS.
 
 - gap_by_budget: mean Brier per budget on the 69 proxy pairs for v5, for v5 with each
   benchmark's mean success rate known in advance (estimated from the other reports,
@@ -30,6 +30,7 @@ import io
 import bench_prior_value as bp
 import llm_anchor
 import model
+import paths
 import proxy
 import proxy_validation as pv
 import sim
@@ -37,7 +38,7 @@ import v7_feedback
 import v8_checks
 
 PROBE = "978024"  # the v7 probe submission
-OUT = Path(__file__).resolve().parent.parent / "report" / "figures" / "figure_data.json"
+OUT = Path(paths.RESULTS) / "figure_data.json"
 
 
 def gap_by_budget(reps=1000, seed=0):
@@ -109,6 +110,7 @@ def v6_by_budget():
 if __name__ == "__main__":
     data = {"budgets": list(sim.BUDGETS), "gap_by_budget": gap_by_budget(), "anchored": anchored(),
             "v6_by_budget": v6_by_budget()}
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, indent=1))
     print(json.dumps(data["gap_by_budget"]["alc"], indent=1))
     print({k: [round(v, 3) for v in vals] for k, vals in data["gap_by_budget"].items() if k != "alc"})

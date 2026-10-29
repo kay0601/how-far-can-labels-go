@@ -4,6 +4,8 @@ improved_mean/cache/
 improved_mean/dist/
 improved_mean/**/.v6_scores/
 improved_mean/**/.v7_ratings/
+improved_mean/**/.v8_ratings/
+improved_mean/results/
 improved_mean/**/.hf_cache/
 improved_mean/*.json
 improved_mean/versions/*.json

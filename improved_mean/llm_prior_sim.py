@@ -29,6 +29,7 @@ import pandas as pd
 
 import llm_anchor
 import model
+import paths
 import sim
 
 MODEL_NAME = "Qwen/Qwen3.8-27B"
@@ -94,7 +95,7 @@ def known_prior(rates, alpha):
 
 def main(n_draws=400):
     ratings = cached_ratings()
-    fig = Path(__file__).resolve().parent.parent / "report" / "figures" / "figure_data.json"
+    fig = Path(paths.RESULTS) / "figure_data.json"  # written by figure_data.py
     actual = {b: v["actual"] for b, v in json.loads(fig.read_text())["anchored"][MODEL_NAME].items()}
     draws = sim.build_draws(n_draws, seed=2024)
     draws = [[g for g in d if g[0][0].split("#")[0] in BENCHES] for d in draws]

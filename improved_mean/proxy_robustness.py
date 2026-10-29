@@ -29,13 +29,14 @@ from scipy.stats import beta
 
 import bench_prior_value as bp
 import model
+import paths
 from feedback_logs import pair_alcs
 import proxy
 import proxy_baselines as pb
 import proxy_validation as pv
 import sim
 
-OUT = Path(__file__).resolve().parent.parent / "report" / "figures" / "robustness.json"
+OUT = Path(paths.RESULTS) / "robustness.json"
 AMBIGUOUS = bp.INFERRED  # reports whose budget-0 prediction is unknown, so their roots are inferred
 COMPARED = ["v5 (HBS)", "official empirical mean", "v1", "benchmark pooling removed",
             "own-label Bayes predictor", "benchmark rate known (diagnostic)"]
@@ -195,5 +196,6 @@ def root_sensitivity(n_random=40, seed=2):
 
 if __name__ == "__main__":
     data = {"pair_z": pair_validity(), "roots": root_sensitivity()}
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, indent=1))
     print("wrote", OUT)

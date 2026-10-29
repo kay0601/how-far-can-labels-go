@@ -9,6 +9,9 @@ Each location can be overridden with an environment variable:
                     (default: tools/ next to this folder)
     PAIEC_FEEDBACK  Codabench scoring logs, saved as <submission id>_scoring_stdout.txt
                     (default: feedback/ in this folder)
+    PAIEC_RESULTS   where figure_data.py and proxy_robustness.py write their JSON output
+                    (default: report/figures/ next to this folder if it exists, else results/
+                    in this folder)
 """
 
 import os
@@ -20,3 +23,5 @@ BASELINE = os.environ.get("PAIEC_BASELINE", os.path.join(HERE, os.pardir, "paiec
 DATA_DIRS = [os.path.join(BASELINE, "payload", "data"), os.path.join(BASELINE, "payload_extra")]
 TOOLS = os.environ.get("PAIEC_TOOLS", os.path.join(HERE, os.pardir, "tools"))
 FEEDBACK = os.environ.get("PAIEC_FEEDBACK", os.path.join(HERE, "feedback"))
+_FIGURES = os.path.join(HERE, os.pardir, "report", "figures")
+RESULTS = os.environ.get("PAIEC_RESULTS", _FIGURES if os.path.isdir(_FIGURES) else os.path.join(HERE, "results"))
