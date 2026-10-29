@@ -70,7 +70,7 @@ We make three contributions (Figure~\ref{fig:teaser}):
   \item \textbf{A real-feedback proxy.} When the budget-0 prediction is constant within a pair, the pair's success rate follows from its budget-0 Brier score and expected calibration error (ECE) (Proposition~\ref{prop:identity}). Our eight reports yield 69 pairs on which label-only predictors can be compared, and the proxy reproduces our submissions' scores within label noise (Section~\ref{sec:proxy}).
   \item \textbf{A strong label-only predictor.} Hierarchical Beta-Binomial shrinkage (HBS) pools labels across subjects and benchmarks and needs no training or pretrained model (Section~\ref{sec:method}). On the proxy it outperforms a Bayes-optimal predictor restricted to each pair's own labels, and no label-only variant we tested improves on it by more than 0.0004 (Section~\ref{sec:labelonly}).
 \end{enumerate}
-Our final submission combines HBS with the LLM benchmark prior (HBS+Prior).\footnote{Codabench submission \finalid. HBS alone, which needs no GPU or pretrained model, is submission 952533.} Code to reproduce all results is available at \url{https://github.com/kay0601/how-far-can-labels-go}.
+Our final submission combines HBS with the LLM benchmark prior (HBS+Prior).\footnote{Codabench submission \finalid.} Code to reproduce all results is available at \url{https://github.com/kay0601/how-far-can-labels-go}.
 
 \section{Related work}
 \label{sec:related}
