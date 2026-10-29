@@ -139,7 +139,7 @@ The code is released under the MIT License (see `LICENSE`). The training data ar
 ```
 @misc{huang2026labels,
   title  = {How Far Can Labels Go? Benchmark Difficulty Is the Bottleneck of Cold-Start Predictive Evaluation},
-  author = {Huang, Hung-Kai},
+  author = {Huang, Hung-Kai and Hwang, Ren-Hung and Hsu, Chih-Chung},
   year   = {2026},
   note   = {Technical report, Predictive AI Evaluation Competition, NeurIPS 2026}
 }
