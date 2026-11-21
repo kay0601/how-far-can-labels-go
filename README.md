@@ -1,6 +1,6 @@
 # How Far Can Labels Go? Code for our PAIEC 2026 report
 
-This repository contains the code for the technical report *How Far Can Labels Go? Benchmark Difficulty Is the Bottleneck of Cold-Start Predictive Evaluation*. The report is our entry to the Predictive AI Evaluation Competition (PAIEC, NeurIPS 2026); our Codabench user is kkk61.
+This repository contains the code for the technical report *How Far Can Labels Go? Evidence That Benchmark Difficulty Limits Cold-Start Predictive Evaluation*. The report is our entry to the Predictive AI Evaluation Competition (PAIEC, NeurIPS 2026); our Codabench user is kkk61.
 
 - **HBS** (hierarchical Beta-Binomial shrinkage) is a label-only predictor. It is one file, `improved_mean/model.py`, uses only the Python standard library, and loads no model.
 - **HBS+Prior** replaces the constant prior mean of HBS with a benchmark prior: the average of Qwen3.8-27B's ratings of the benchmark's items. Its code is in `improved_mean/v7/`, and `improved_mean/build_v7.py` builds the submission archive.
@@ -137,7 +137,7 @@ The code is released under the MIT License (see `LICENSE`). The training data ar
 
 ```
 @misc{huang2026labels,
-  title  = {How Far Can Labels Go? Benchmark Difficulty Is the Bottleneck of Cold-Start Predictive Evaluation},
+  title  = {How Far Can Labels Go? Evidence That Benchmark Difficulty Limits Cold-Start Predictive Evaluation},
   author = {Huang, Hung-Kai and Hwang, Ren-Hung and Hsu, Chih-Chung},
   year   = {2026},
   note   = {Technical report, Predictive AI Evaluation Competition, NeurIPS 2026}
